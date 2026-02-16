@@ -1,0 +1,57 @@
+/* --- Dark Mode Theme --- */
+.rte-editor--dark {
+  --rte-bg: #1a1a2e;
+  --rte-text: #e4e4e7;
+  --rte-border-color: #3f3f46;
+  --rte-toolbar-bg: #27273a;
+  --rte-toolbar-border: #3f3f46;
+  --rte-toolbar-btn-hover: #3f3f5a;
+  --rte-toolbar-btn-active: #4f46e5;
+  --rte-toolbar-btn-active-text: #ffffff;
+  --rte-content-bg: #1e1e32;
+  --rte-content-text: #e4e4e7;
+  --rte-placeholder-color: #71717a;
+  --rte-selection-bg: rgba(79, 70, 229, 0.3);
+  --rte-focus-ring: #6366f1;
+  --rte-link-color: #818cf8;
+  --rte-blockquote-border: #4f46e5;
+  --rte-blockquote-bg: rgba(79, 70, 229, 0.1);
+  --rte-hr-color: #3f3f46;
+  --rte-toast-bg: #27273a;
+  --rte-toast-text: #e4e4e7;
+  --rte-toast-border: #3f3f46;
+  --rte-toast-error-bg: #7f1d1d;
+  --rte-toast-error-text: #fecaca;
+  --rte-toast-success-bg: #14532d;
+  --rte-toast-success-text: #bbf7d0;
+  --rte-scrollbar-thumb: #3f3f46;
+  --rte-scrollbar-track: #1a1a2e;
+  --rte-sidebar-bg: #27273a;
+  --rte-sidebar-border: #3f3f46;
+  --rte-fullscreen-bg: #1a1a2e;
+}
+
+/* Dark mode for code blocks */
+.rte-editor--dark .rte-code-block {
+  --rte-code-bg: #0d0d1a;
+  --rte-code-header-bg: #1a1a2e;
+  --rte-code-border: #2d2d44;
+}
+
+/* Dark mode for dropdowns/popovers */
+.rte-editor--dark .rte-color-picker,
+.rte-editor--dark .rte-emoji-picker,
+.rte-editor--dark .rte-word-count-popover {
+  background: var(--rte-toolbar-bg);
+  border-color: var(--rte-border-color);
+  color: var(--rte-text);
+}
+
+/* Dark mode input fields */
+.rte-editor--dark input,
+.rte-editor--dark select,
+.rte-editor--dark textarea {
+  background: var(--rte-content-bg);
+  color: var(--rte-text);
+  border-color: var(--rte-border-color);
+}
