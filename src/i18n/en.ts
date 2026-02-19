@@ -37,6 +37,9 @@ export const en: Record<string, string> = {
   'toolbar.codeBlock': 'Code Block',
   'toolbar.table': 'Insert Table',
   'toolbar.comment': 'Add Comment',
+  'toolbar.voiceToText': 'Voice Dictation',
+  'toolbar.voiceToText.start': 'Start voice dictation',
+  'toolbar.voiceToText.stop': 'Stop voice dictation',
 
   // Keyboard shortcuts
   'shortcut.bold': 'Ctrl+B',
@@ -122,5 +125,31 @@ export const en: Record<string, string> = {
   'general.cancel': 'Cancel',
   'general.delete': 'Delete',
   'general.edit': 'Edit',
+
+  // AI Assistant
+  'ai.toolbar': 'AI Assistant',
+  'ai.action.simplify': 'Simplify',
+  'ai.action.translate': 'Translate',
+  'ai.action.grammar': 'Fix Grammar',
+  'ai.action.summarize': 'Summarize',
+  'ai.action.expand': 'Expand',
+  'ai.action.explain': 'Explain',
+  'ai.action.continue': 'Continue Writing',
+  'ai.action.questions': 'Generate Questions',
+  'ai.action.rubric': 'Create Rubric',
+  'ai.prompt.placeholder': 'Ask AI to write, edit, or transform…',
+  'ai.prompt.selection': 'Selected text',
+  'ai.prompt.hint': 'Ctrl+Enter to submit · Esc to close',
+  'ai.button.submit': 'Submit',
+  'ai.button.accept': 'Accept',
+  'ai.button.acceptEdit': 'Accept & Edit',
+  'ai.button.reject': 'Discard',
+  'ai.button.retry': 'Retry',
+  'ai.loading': 'AI is thinking…',
+  'ai.error.generic': 'Something went wrong. Please try again.',
+  'ai.error.noHandler': 'No AI handler configured.',
+  'ai.error.timeout': 'Request timed out. Please try again.',
+  'ai.bubbleMenu': 'Ask AI',
+  'ai.slashCommand': 'Ask AI to write or edit',
 }
 

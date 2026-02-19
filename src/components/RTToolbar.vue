@@ -16,6 +16,12 @@ const emit = defineEmits<{
   'open-color-picker': []
   'open-formula-editor': []
   'toggle-word-count': []
+  'add-comment': []
+  'toggle-voice': []
+  'open-stamp-picker': []
+  'ai:open': []
+  'image-upload': [file: File]
+  'file-upload': [file: File]
 }>()
 
 const headingDropdownOpen = ref(false)
@@ -182,6 +188,11 @@ function getItemDef(item: ToolbarItem): ToolbarItemDef | null {
       label: 'Scientific Formula',
       action: () => emit('open-formula-editor'),
     },
+    math: {
+      icon: 'formula',
+      label: 'Math / Formula',
+      action: () => emit('open-formula-editor'),
+    },
     wordCount: {
       icon: 'wordCount',
       label: 'Word Count',
@@ -190,7 +201,25 @@ function getItemDef(item: ToolbarItem): ToolbarItemDef | null {
     comment: {
       icon: 'comment',
       label: 'Add Comment',
-      action: () => { /* Will be implemented in Wave 2 */ },
+      action: () => emit('add-comment'),
+      isDisabled: () => editor.view.state.selection.empty,
+    },
+    voiceToText: {
+      icon: 'microphone',
+      label: 'Voice Dictation',
+      action: () => emit('toggle-voice'),
+    },
+    stamp: {
+      icon: 'stamp',
+      label: 'Stamp',
+      action: () => emit('open-stamp-picker'),
+      isDisabled: () => editor.view.state.selection.empty,
+    },
+    ai: {
+      icon: 'ai',
+      label: 'AI Assistant',
+      shortcut: 'Ctrl+K',
+      action: () => emit('ai:open'),
     },
   }
 
@@ -312,10 +341,17 @@ const iconPaths: Record<string, string> = {
   formula: '<text x="3" y="17" font-size="14" fill="currentColor" stroke="none" font-style="italic">∑x</text>',
   wordCount: '<path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/>',
   comment: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  attachFile: '<path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
+  microphone: '<rect x="9" y="1" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/>',
+  stamp: '<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><text x="12" y="10" font-size="8" fill="currentColor" stroke="none" text-anchor="middle">⭐</text>',
+  ai: '<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="none"/>',
 }
 
 // Image upload file input ref
 const imageFileInput = ref<HTMLInputElement | null>(null)
+
+// File attachment file input ref
+const attachFileInput = ref<HTMLInputElement | null>(null)
 
 function handleImageClick() {
   imageFileInput.value?.click()
@@ -325,8 +361,20 @@ function handleImageFileChange(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   if (file && props.editor) {
-    const customEvent = new CustomEvent('rte-image-upload', { detail: { file }, bubbles: true })
-    ;(event.target as HTMLElement).dispatchEvent(customEvent)
+    emit('image-upload', file)
+  }
+  if (input) input.value = ''
+}
+
+function handleAttachFileClick() {
+  attachFileInput.value?.click()
+}
+
+function handleAttachFileChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (file && props.editor) {
+    emit('file-upload', file)
   }
   if (input) input.value = ''
 }
@@ -435,26 +483,30 @@ onBeforeUnmount(() => {
       </div>
 
       <!-- Image button (triggers file input) -->
-      <template v-else-if="item === 'image'">
-        <button
-          class="rte-toolbar__button"
-          aria-label="Insert Image"
-          data-tooltip="Insert Image"
-          data-testid="rte-toolbar-image"
-          @click="handleImageClick"
-        >
-          <svg viewBox="0 0 24 24" v-html="iconPaths.image" />
-          <span class="rte-tooltip">Insert Image</span>
-        </button>
-        <input
-          ref="imageFileInput"
-          type="file"
-          accept="image/jpeg,image/png,image/gif,image/webp"
-          aria-label="Upload image file"
-          style="display: none"
-          @change="handleImageFileChange"
-        />
-      </template>
+      <button
+        v-else-if="item === 'image'"
+        class="rte-toolbar__button"
+        aria-label="Insert Image"
+        data-tooltip="Insert Image"
+        data-testid="rte-toolbar-image"
+        @click="handleImageClick"
+      >
+        <svg viewBox="0 0 24 24" v-html="iconPaths.image" />
+        <span class="rte-tooltip">Insert Image</span>
+      </button>
+
+      <!-- Attach file button (triggers file input) -->
+      <button
+        v-else-if="item === 'attachFile'"
+        class="rte-toolbar__button"
+        aria-label="Attach File"
+        data-tooltip="Attach File"
+        data-testid="rte-toolbar-attachFile"
+        @click="handleAttachFileClick"
+      >
+        <svg viewBox="0 0 24 24" v-html="iconPaths.attachFile" />
+        <span class="rte-tooltip">Attach File</span>
+      </button>
 
       <!-- Regular toolbar buttons -->
       <button
@@ -490,5 +542,23 @@ onBeforeUnmount(() => {
     >
       <svg width="16" height="16" viewBox="0 0 24 24" v-html="iconPaths.chevronRight" />
     </button>
+
+    <!-- Hidden file inputs (outside the loop so refs work correctly) -->
+    <input
+      ref="imageFileInput"
+      type="file"
+      accept="image/jpeg,image/png,image/gif,image/webp"
+      aria-label="Upload image file"
+      style="display: none"
+      @change="handleImageFileChange"
+    />
+    <input
+      ref="attachFileInput"
+      type="file"
+      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip"
+      aria-label="Upload file attachment"
+      style="display: none"
+      @change="handleAttachFileChange"
+    />
   </div>
 </template>

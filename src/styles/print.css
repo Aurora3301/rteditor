@@ -1,0 +1,74 @@
+/* ============================================
+   @timothyphchan/rteditor — Print Styles
+   Print-friendly formatting for editor content
+   ============================================ */
+
+@media print {
+  /* Hide all editor chrome */
+  .rte-toolbar,
+  .rte-bubble-menu,
+  .rte-drag-handle,
+  .rte-collaboration-cursor,
+  .rte-comment-sidebar,
+  .rte-word-count,
+  .rte-fullscreen-toggle {
+    display: none !important;
+  }
+
+  /* Remove editor borders/shadows */
+  .rte-editor {
+    border: none !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+  }
+
+  /* Heading page breaks */
+  h1, h2, h3, h4 {
+    page-break-after: avoid;
+  }
+
+  /* Image scaling */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Table borders */
+  table {
+    border-collapse: collapse;
+  }
+
+  table, th, td {
+    border: 1px solid #000 !important;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+
+  /* Links show URLs */
+  a[href]::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  a[href^="#"]::after,
+  a[href^="javascript"]::after {
+    content: '';
+  }
+
+  /* Code blocks preserve formatting */
+  pre, code {
+    white-space: pre-wrap !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Page setup */
+  @page {
+    margin: 2cm;
+    size: A4;
+  }
+}
+

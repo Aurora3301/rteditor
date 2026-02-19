@@ -14,6 +14,7 @@ A production-ready, Notion-inspired rich text editor component for Vue 3. Design
 - 🔗 **Link insertion** — Dialog with URL validation, edit & remove from bubble menu
 - 🖼️ **Image upload** — Drag & drop, paste, click to upload with configurable size limits
 - 📐 **Math equations** — KaTeX rendering for inline and block math (lazy-loaded for performance)
+- 🤖 **AI Assistant** — Notion/Cursor-style AI panel with local LLaMA support (Ollama), quick actions, and custom prompts
 - 🎨 **Theming** — 20+ CSS custom properties, Notion-inspired defaults, dark mode via props
 - ♿ **Accessible** — ARIA attributes, keyboard navigation, focus trap, `:focus-visible` indicators
 - 📦 **Lightweight** — ~14.6 KB gzip total (JS + CSS), tree-shakeable exports
@@ -67,6 +68,8 @@ const content = ref('<p>Hello World</p>')
 | `uploadHandler` | `UploadHandler` | — | Async function to handle file uploads |
 | `fileSizeLimits` | `Partial<FileSizeLimits>` | `{ image: 5MB, pdf: 1MB, document: 1MB }` | File size limits per type |
 | `theme` | `ThemeConfig` | — | Theme configuration |
+| `aiHandler` | `AIHandler` | — | AI handler for content generation |
+| `aiOptions` | `AIOptions` | — | AI configuration (context level, quick actions) |
 
 ## Events
 
@@ -153,6 +156,125 @@ const uploadHandler = async (file) => {
 </template>
 ```
 
+## AI Assistant
+
+RTEditor includes a Notion/Cursor-style AI assistant panel for content generation and transformation.
+
+### Quick Start with Local LLaMA (Ollama)
+
+```vue
+<script setup>
+import { ref } from 'vue'
+import { RTEditor, basePreset, createLlamaAIHandler } from '@timothyphchan/rteditor'
+import '@timothyphchan/rteditor/style.css'
+
+const content = ref('')
+
+// Connect to local Ollama server
+const aiHandler = createLlamaAIHandler({
+  endpoint: 'http://localhost:11434/api/generate',
+  model: 'llama3.2',  // or: mistral, codellama, deepseek-r1, etc.
+  systemPrompt: 'You are a helpful writing assistant.',
+  timeout: 120000,  // 2 minutes
+})
+
+// Add 'ai' button to toolbar
+const preset = {
+  ...basePreset,
+  toolbar: [...basePreset.toolbar, '|', 'ai'],
+}
+</script>
+
+<template>
+  <RTEditor
+    v-model="content"
+    :preset="preset"
+    :ai-handler="aiHandler"
+    :ai-options="{
+      contextLevel: 'standard',
+      quickActions: ['simplify', 'grammar', 'summarize', 'expand', 'translate'],
+    }"
+  />
+</template>
+```
+
+### Prerequisites (Ollama)
+
+```bash
+# Install Ollama
+brew install ollama  # macOS
+# or visit https://ollama.ai for other platforms
+
+# Pull a model
+ollama pull llama3.2
+
+# Start server (usually runs automatically)
+ollama serve
+```
+
+### AI Handler Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `endpoint` | `string` | `http://localhost:11434/api/generate` | Ollama API endpoint |
+| `model` | `string` | `llama3.2` | Model name |
+| `systemPrompt` | `string` | — | System prompt prepended to requests |
+| `timeout` | `number` | `60000` | Request timeout in ms |
+
+### AI Options (Props)
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `contextLevel` | `'minimal' \| 'standard' \| 'full'` | `'standard'` | How much context to send |
+| `quickActions` | `AIQuickAction[]` | All actions | Quick action buttons to show |
+| `maxContextLength` | `number` | `4000` | Max characters of context |
+| `systemPrompt` | `string` | — | Additional system prompt |
+| `enabled` | `boolean` | `true` | Enable/disable AI feature |
+
+### Quick Actions
+
+| Action | Description |
+|--------|-------------|
+| `simplify` | Simplify selected text |
+| `grammar` | Fix grammar and spelling |
+| `summarize` | Summarize content |
+| `expand` | Expand with more detail |
+| `translate` | Translate to another language |
+| `explain` | Explain the content |
+| `continue` | Continue writing |
+| `questions` | Generate questions |
+| `rubric` | Create a rubric |
+
+### How to Use
+
+1. **Toolbar Button** — Click the ✨ AI button
+2. **Keyboard Shortcut** — Press `Cmd+K` (Mac) or `Ctrl+K` (Windows/Linux)
+3. **Bubble Menu** — Select text and click "Ask AI"
+4. **Slash Command** — Type `/ai` in the editor
+
+### Custom AI Handler (OpenAI, Anthropic, etc.)
+
+```typescript
+import { createProxyAIHandler } from '@timothyphchan/rteditor'
+
+const aiHandler = createProxyAIHandler({
+  endpoint: '/api/ai/generate',
+  headers: {
+    Authorization: `Bearer ${apiKey}`,
+  },
+  transformRequest: (request) => ({
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: 'You are a helpful writing assistant.' },
+      { role: 'user', content: request.prompt },
+    ],
+  }),
+  transformResponse: (response) => ({
+    content: response.choices[0].message.content,
+  }),
+})
+```
+
 ## Keyboard Shortcuts
 
 | Shortcut | Action |
@@ -161,7 +283,7 @@ const uploadHandler = async (file) => {
 | `Ctrl/⌘ + I` | Italic |
 | `Ctrl/⌘ + U` | Underline |
 | `Ctrl/⌘ + Shift + S` | Strikethrough |
-| `Ctrl/⌘ + K` | Insert link |
+| `Ctrl/⌘ + K` | Open AI Assistant |
 | `Ctrl/⌘ + Z` | Undo |
 | `Ctrl/⌘ + Shift + Z` | Redo |
 | `F11` | Toggle fullscreen |
@@ -229,6 +351,7 @@ See [`src/themes/default.css`](src/themes/default.css) for the complete list.
 | `RTBubbleMenu` | Floating menu on text selection (used internally) |
 | `RTLinkDialog` | Link insertion/edit dialog (used internally) |
 | `RTImageUpload` | Image upload with drag & drop (used internally) |
+| `RTAIPanel` | AI assistant floating panel (used internally) |
 | `RTToast` | Toast notification (used internally) |
 
 ### Composables
@@ -238,6 +361,7 @@ See [`src/themes/default.css`](src/themes/default.css) for the complete list.
 | `useEditor(options)` | Create and manage a TipTap editor instance |
 | `useTheme(config?)` | Theme management — `currentTheme`, `applyTheme`, `setTheme` |
 | `useUpload(handler?, limits?)` | File upload with validation and reactive state |
+| `useAI(editor, options)` | AI assistant state and actions — `open`, `close`, `submit`, `accept`, `reject` |
 
 ### Utilities
 
@@ -249,6 +373,7 @@ See [`src/themes/default.css`](src/themes/default.css) for the complete list.
 | `exportRawHTML` | `(editor: Editor) => string` | Export raw HTML from editor |
 | `exportJSON` | `(editor: Editor) => JSONContent` | Export ProseMirror JSON |
 | `validateJSON` | `(json: unknown) => boolean` | Validate ProseMirror JSON structure |
+| `getAIPanelPosition` | `(editor: Editor) => { top, left }` | Calculate AI panel position at cursor |
 
 ### Extensions
 
@@ -256,6 +381,15 @@ See [`src/themes/default.css`](src/themes/default.css) for the complete list.
 |-----------|-------------|
 | `MathExtension` | KaTeX math equations — inline (`$...$`) and block (`$$...$$`) |
 | `ImageUploadExtension` | Drag-and-drop image upload with progress placeholder |
+| `AIKeyboardShortcut` | Registers Cmd/Ctrl+K shortcut for AI panel |
+
+### AI Handlers
+
+| Factory Function | Description |
+|------------------|-------------|
+| `createLlamaAIHandler(options)` | Connect to local Ollama/llama.cpp server |
+| `createProxyAIHandler(options)` | Generic proxy for any AI backend (OpenAI, Anthropic, etc.) |
+| `createDKIAIHandler(options)` | DKI/Laravel-specific handler with Axios CSRF |
 
 ### Presets
 
@@ -284,6 +418,15 @@ import type {
   UseEditorOptions,
   MathExtensionOptions,
   ImageUploadOptions,
+  // AI Types
+  AIHandler,
+  AIRequest,
+  AIResponse,
+  AIOptions,
+  AIState,
+  AIQuickAction,
+  AIContextLevel,
+  AIMetadata,
 } from '@timothyphchan/rteditor'
 ```
 

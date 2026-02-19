@@ -3,6 +3,27 @@
    Notion-inspired, content-first design
    ============================================ */
 
+/* Print Styles */
+@import '../styles/print.css';
+
+/* Stamp Styles */
+@import '../styles/stamps.css';
+
+/* Tag Styles */
+@import '../styles/tags.css';
+
+/* Drag Handle Styles */
+@import '../styles/drag-handle.css';
+
+/* Collaboration Styles */
+@import '../styles/collaboration.css';
+
+/* Mobile Styles */
+@import '../styles/mobile.css';
+
+/* AI Panel Styles */
+@import '../styles/ai.css';
+
 /* --- CSS Custom Properties --- */
 :root {
   /* Colors */
@@ -96,7 +117,7 @@
   background: var(--rte-editor-bg);
   border: 1px solid var(--rte-border);
   border-radius: var(--rte-radius-lg);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .rte-editor:focus-within {
@@ -2230,3 +2251,4 @@
     border-radius: var(--rte-radius-lg) var(--rte-radius-lg) 0 0;
   }
 }
+

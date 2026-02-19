@@ -2,7 +2,10 @@
 import { ref } from 'vue'
 import type { Editor } from '@tiptap/vue-3'
 import type { UploadHandler, UploadResult, FileSizeLimits } from '../types'
-import { useUpload } from '../composables/useUpload'
+import {
+  getFileCategory,
+  DEFAULT_FILE_SIZE_LIMITS,
+} from '../types'
 
 const props = defineProps<{
   editor: Editor | null
@@ -16,15 +19,34 @@ const emit = defineEmits<{
   'upload-error': [error: string]
 }>()
 
-const { upload, isUploading, uploadError, validateFile } = useUpload(
-  props.uploadHandler,
-  props.fileSizeLimits,
-)
-
+const isUploading = ref(false)
 const isDragging = ref(false)
+
+function getFileSizeLimits(): FileSizeLimits {
+  return { ...DEFAULT_FILE_SIZE_LIMITS, ...props.fileSizeLimits }
+}
+
+function validateFile(file: File): string | null {
+  const category = getFileCategory(file.type)
+  if (!category) return `Unsupported file type: ${file.type}`
+  const limits = getFileSizeLimits()
+  const limit = limits[category]
+  if (file.size > limit) {
+    const limitMB = (limit / (1024 * 1024)).toFixed(0)
+    return `File too large (max ${limitMB} MB for ${category})`
+  }
+  return null
+}
 
 async function handleFile(file: File) {
   if (!props.editor) return
+
+  // Always get the current uploadHandler from props (reactive)
+  const handler = props.uploadHandler
+  if (!handler) {
+    emit('upload-error', 'No upload handler configured')
+    return
+  }
 
   const validationError = validateFile(file)
   if (validationError) {
@@ -33,18 +55,24 @@ async function handleFile(file: File) {
   }
 
   emit('upload-start', file)
+  isUploading.value = true
 
-  const result = await upload(file)
-  if (result) {
-    // Insert the image into the editor
-    props.editor
-      .chain()
-      .focus()
-      .setImage({ src: result.url, alt: result.alt || '', title: result.title || '' })
-      .run()
-    emit('upload-success', result)
-  } else if (uploadError.value) {
-    emit('upload-error', uploadError.value)
+  try {
+    const result = await handler(file)
+    if (result) {
+      // Insert the image into the editor
+      props.editor
+        .chain()
+        .focus()
+        .setImage({ src: result.url, alt: result.alt || '', title: result.title || '' })
+        .run()
+      emit('upload-success', result)
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Upload failed'
+    emit('upload-error', message)
+  } finally {
+    isUploading.value = false
   }
 }
 

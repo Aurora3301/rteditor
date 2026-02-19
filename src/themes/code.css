@@ -120,3 +120,149 @@
   padding: 0;
 }
 
+/* --- Syntax Highlighting (hljs / lowlight) --- Dark theme (default) --- */
+.rte-code-block .hljs-comment,
+.rte-code-block .hljs-quote {
+  color: #6a9955;
+  font-style: italic;
+}
+
+.rte-code-block .hljs-keyword,
+.rte-code-block .hljs-selector-tag,
+.rte-code-block .hljs-addition {
+  color: #569cd6;
+}
+
+.rte-code-block .hljs-number,
+.rte-code-block .hljs-string,
+.rte-code-block .hljs-meta .hljs-meta-string,
+.rte-code-block .hljs-literal,
+.rte-code-block .hljs-doctag,
+.rte-code-block .hljs-regexp {
+  color: #ce9178;
+}
+
+.rte-code-block .hljs-title,
+.rte-code-block .hljs-section,
+.rte-code-block .hljs-name,
+.rte-code-block .hljs-selector-id,
+.rte-code-block .hljs-selector-class {
+  color: #dcdcaa;
+}
+
+.rte-code-block .hljs-attribute,
+.rte-code-block .hljs-attr,
+.rte-code-block .hljs-variable,
+.rte-code-block .hljs-template-variable,
+.rte-code-block .hljs-class .hljs-title,
+.rte-code-block .hljs-type {
+  color: #4ec9b0;
+}
+
+.rte-code-block .hljs-symbol,
+.rte-code-block .hljs-bullet,
+.rte-code-block .hljs-subst,
+.rte-code-block .hljs-meta,
+.rte-code-block .hljs-meta .hljs-keyword,
+.rte-code-block .hljs-tag {
+  color: #d4d4d4;
+}
+
+.rte-code-block .hljs-built_in,
+.rte-code-block .hljs-builtin-name {
+  color: #4fc1ff;
+}
+
+.rte-code-block .hljs-deletion {
+  color: #ce9178;
+  background: rgba(206, 145, 120, 0.1);
+}
+
+.rte-code-block .hljs-emphasis {
+  font-style: italic;
+}
+
+.rte-code-block .hljs-strong {
+  font-weight: bold;
+}
+
+/* --- Syntax Highlighting — Light theme override --- */
+[data-theme="light"] .rte-code-block,
+.rte-theme-light .rte-code-block {
+  --rte-code-bg: #f5f5f5;
+  --rte-code-text: #383a42;
+  --rte-code-header-bg: #e8e8e8;
+  --rte-code-border: #d0d0d0;
+  --rte-code-line-number-color: #999;
+  --rte-code-btn-hover-bg: #d0d0d0;
+  --rte-code-select-bg: #e0e0e0;
+  --rte-code-select-text: #383a42;
+}
+
+[data-theme="light"] .rte-code-block .hljs-comment,
+[data-theme="light"] .rte-code-block .hljs-quote,
+.rte-theme-light .rte-code-block .hljs-comment,
+.rte-theme-light .rte-code-block .hljs-quote {
+  color: #a0a1a7;
+  font-style: italic;
+}
+
+[data-theme="light"] .rte-code-block .hljs-keyword,
+[data-theme="light"] .rte-code-block .hljs-selector-tag,
+[data-theme="light"] .rte-code-block .hljs-addition,
+.rte-theme-light .rte-code-block .hljs-keyword,
+.rte-theme-light .rte-code-block .hljs-selector-tag,
+.rte-theme-light .rte-code-block .hljs-addition {
+  color: #a626a4;
+}
+
+[data-theme="light"] .rte-code-block .hljs-number,
+[data-theme="light"] .rte-code-block .hljs-string,
+[data-theme="light"] .rte-code-block .hljs-meta .hljs-meta-string,
+[data-theme="light"] .rte-code-block .hljs-literal,
+[data-theme="light"] .rte-code-block .hljs-doctag,
+[data-theme="light"] .rte-code-block .hljs-regexp,
+.rte-theme-light .rte-code-block .hljs-number,
+.rte-theme-light .rte-code-block .hljs-string,
+.rte-theme-light .rte-code-block .hljs-meta .hljs-meta-string,
+.rte-theme-light .rte-code-block .hljs-literal,
+.rte-theme-light .rte-code-block .hljs-doctag,
+.rte-theme-light .rte-code-block .hljs-regexp {
+  color: #50a14f;
+}
+
+[data-theme="light"] .rte-code-block .hljs-title,
+[data-theme="light"] .rte-code-block .hljs-section,
+[data-theme="light"] .rte-code-block .hljs-name,
+[data-theme="light"] .rte-code-block .hljs-selector-id,
+[data-theme="light"] .rte-code-block .hljs-selector-class,
+.rte-theme-light .rte-code-block .hljs-title,
+.rte-theme-light .rte-code-block .hljs-section,
+.rte-theme-light .rte-code-block .hljs-name,
+.rte-theme-light .rte-code-block .hljs-selector-id,
+.rte-theme-light .rte-code-block .hljs-selector-class {
+  color: #4078f2;
+}
+
+[data-theme="light"] .rte-code-block .hljs-attribute,
+[data-theme="light"] .rte-code-block .hljs-attr,
+[data-theme="light"] .rte-code-block .hljs-variable,
+[data-theme="light"] .rte-code-block .hljs-template-variable,
+[data-theme="light"] .rte-code-block .hljs-class .hljs-title,
+[data-theme="light"] .rte-code-block .hljs-type,
+.rte-theme-light .rte-code-block .hljs-attribute,
+.rte-theme-light .rte-code-block .hljs-attr,
+.rte-theme-light .rte-code-block .hljs-variable,
+.rte-theme-light .rte-code-block .hljs-template-variable,
+.rte-theme-light .rte-code-block .hljs-class .hljs-title,
+.rte-theme-light .rte-code-block .hljs-type {
+  color: #e45649;
+}
+
+[data-theme="light"] .rte-code-block .hljs-built_in,
+[data-theme="light"] .rte-code-block .hljs-builtin-name,
+.rte-theme-light .rte-code-block .hljs-built_in,
+.rte-theme-light .rte-code-block .hljs-builtin-name {
+  color: #c18401;
+}
+

@@ -1,5 +1,7 @@
 import type { Editor, Extensions } from '@tiptap/core'
 
+export type { TagsExtensionOptions, TagsStorage } from '../extensions/TagsExtension'
+
 export type ToolbarItem =
   | 'bold' | 'italic' | 'underline' | 'strike'
   | 'subscript' | 'superscript'
@@ -20,6 +22,9 @@ export type ToolbarItem =
   | 'table'
   | 'comment'
   | 'textSize'
+  | 'voiceToText'
+  | 'stamp'
+  | 'ai'
   | '|'
 
 export type ToolbarConfig = ToolbarItem[]

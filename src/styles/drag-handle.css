@@ -1,0 +1,63 @@
+/* --- Drag Handle --- */
+.rte-drag-handle {
+  position: absolute;
+  left: -24px;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rte-text-muted, #999);
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.rte-drag-handle:hover {
+  background: var(--rte-hover-bg, #f0f0f0);
+  opacity: 1;
+}
+
+.ProseMirror > *:hover > .rte-drag-handle,
+.ProseMirror > .has-focus > .rte-drag-handle {
+  opacity: 0.5;
+}
+
+.rte-drag-handle:active {
+  cursor: grabbing;
+}
+
+.rte-drag-handle:focus-visible {
+  outline: 2px solid var(--rte-focus-ring, #2563eb);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+/* --- Drop Indicator --- */
+.rte-drop-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--rte-primary-color, #3b82f6);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Hide in read-only mode */
+.rte-readonly .rte-drag-handle,
+.rte-editor--readonly .rte-drag-handle {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rte-drag-handle {
+    transition: none;
+  }
+}
+

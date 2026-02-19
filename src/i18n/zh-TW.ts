@@ -37,6 +37,9 @@ export const zhTW: Record<string, string> = {
   'toolbar.codeBlock': '程式碼區塊',
   'toolbar.table': '插入表格',
   'toolbar.comment': '新增評論',
+  'toolbar.voiceToText': '語音輸入',
+  'toolbar.voiceToText.start': '開始語音輸入',
+  'toolbar.voiceToText.stop': '停止語音輸入',
 
   // Keyboard shortcuts (same across locales)
   'shortcut.bold': 'Ctrl+B',
@@ -122,5 +125,31 @@ export const zhTW: Record<string, string> = {
   'general.cancel': '取消',
   'general.delete': '刪除',
   'general.edit': '編輯',
+
+  // AI Assistant
+  'ai.toolbar': 'AI 助手',
+  'ai.action.simplify': '簡化',
+  'ai.action.translate': '翻譯',
+  'ai.action.grammar': '修正文法',
+  'ai.action.summarize': '摘要',
+  'ai.action.expand': '擴寫',
+  'ai.action.explain': '解釋',
+  'ai.action.continue': '繼續寫作',
+  'ai.action.questions': '產生問題',
+  'ai.action.rubric': '建立評量標準',
+  'ai.prompt.placeholder': '請 AI 撰寫、編輯或轉換內容…',
+  'ai.prompt.selection': '已選取文字',
+  'ai.prompt.hint': 'Ctrl+Enter 送出 · Esc 關閉',
+  'ai.button.submit': '送出',
+  'ai.button.accept': '接受',
+  'ai.button.acceptEdit': '接受並編輯',
+  'ai.button.reject': '捨棄',
+  'ai.button.retry': '重試',
+  'ai.loading': 'AI 思考中…',
+  'ai.error.generic': '發生錯誤，請再試一次。',
+  'ai.error.noHandler': '尚未設定 AI 處理器。',
+  'ai.error.timeout': '請求逾時，請再試一次。',
+  'ai.bubbleMenu': '詢問 AI',
+  'ai.slashCommand': '請 AI 撰寫或編輯',
 }
 

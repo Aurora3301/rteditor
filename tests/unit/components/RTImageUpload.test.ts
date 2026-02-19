@@ -32,9 +32,10 @@ describe('RTImageUpload', () => {
   })
 
   it('emits upload-error for unsupported file type', async () => {
+    const mockHandler = vi.fn().mockResolvedValue({ url: 'https://example.com/img.png' })
     const editor = createImageMockEditor()
     const wrapper = mount(RTImageUpload, {
-      props: { editor: editor as any },
+      props: { editor: editor as any, uploadHandler: mockHandler },
     })
     const invalidFile = new File(['test'], 'test.txt', { type: 'text/plain' })
     wrapper.vm.triggerUpload(invalidFile)

@@ -14,25 +14,32 @@ export { default as RTSlashCommandMenu } from './components/RTSlashCommandMenu.v
 export { default as RTFileAttachment } from './components/RTFileAttachment.vue'
 export { default as RTCommentBubble } from './components/RTCommentBubble.vue'
 export { default as RTCommentSidebar } from './components/RTCommentSidebar.vue'
+export { default as RTVoiceButton } from './components/RTVoiceButton.vue'
+export { default as RTTagInput } from './components/RTTagInput.vue'
+export { default as RTStampPicker } from './components/RTStampPicker.vue'
+export { default as RTAIPanel } from './components/RTAIPanel.vue'
 
 // Presets
-export { basePreset } from './presets'
+export { basePreset, teacherPreset, studentPreset, defaultLessonPlanTemplates, buildLessonPlanHTML } from './presets'
+export type { LessonPlanTemplate, LessonPlanSection } from './presets'
 
 // Composables
-export { useEditor, useAutoSave, useUpload, useTheme, useI18n } from './composables'
+export { useEditor, useAutoSave, useUpload, useTheme, useI18n, useVoiceToText, useMobileDetect, useAI } from './composables'
 export type { UseEditorOptions, UseEditorReturn, ThemeMode } from './composables'
 export type { UseAutoSaveOptions, UseAutoSaveReturn, AutoSaveStatus } from './composables'
-export type { TranslationMessages } from './composables'
+export type { TranslationMessages, VoiceToTextOptions } from './composables'
+export type { UseAIOptions, UseAIReturn } from './composables'
 
 // i18n
 export { t, setLocale, registerLocale, getLocale } from './i18n'
 
 // Extensions
-export { ChecklistExtension, MathExtension, ImageUploadExtension, CodeSnippetExtension, SUPPORTED_LANGUAGES, WordCountExtension, countWords, HighlightExtension, DEFAULT_TEXT_COLORS, DEFAULT_HIGHLIGHT_COLORS, FileAttachmentExtension, CommentExtension, SlashCommandExtension, defaultSlashCommands } from './extensions'
-export type { ChecklistExtensionOptions, MathExtensionOptions, ImageUploadOptions, CodeSnippetOptions, SupportedLanguage, WordCountExtensionOptions, WordCountStorage, HighlightExtensionOptions, FileAttachmentOptions, FileAttachmentType, CommentExtensionOptions, SlashCommandOptions, SlashCommand } from './extensions'
+export { ChecklistExtension, MathExtension, ImageUploadExtension, CodeSnippetExtension, SUPPORTED_LANGUAGES, lowlightInstance, WordCountExtension, countWords, HighlightExtension, DEFAULT_TEXT_COLORS, DEFAULT_HIGHLIGHT_COLORS, FileAttachmentExtension, CommentExtension, SlashCommandExtension, defaultSlashCommands, TagsExtension, StampExtension, DEFAULT_STAMPS, VoiceToTextExtension, DragHandleExtension, CollaborationExtension, CollaborationCursorExtension, AIKeyboardShortcut } from './extensions'
+export type { ChecklistExtensionOptions, MathExtensionOptions, ImageUploadOptions, CodeSnippetOptions, SupportedLanguage, WordCountExtensionOptions, WordCountStorage, HighlightExtensionOptions, FileAttachmentOptions, FileAttachmentType, CommentExtensionOptions, SlashCommandOptions, SlashCommand, TagsExtensionOptions, TagsStorage, StampExtensionOptions, Stamp, VoiceToTextExtensionOptions, DragHandleOptions, CollaborationExtensionOptions, CollaborationCursorOptions, AIKeyboardShortcutOptions } from './extensions'
 
 // Utilities
-export { sanitizeHTML, stripAllHTML } from './utils'
+export { sanitizeHTML, stripAllHTML, getAIPanelPosition } from './utils'
+export type { AIPanelPosition } from './utils'
 export { exportHTML, exportRawHTML } from './utils'
 export { exportJSON, validateJSON } from './utils'
 export { exportPDF, downloadPDF } from './utils'
@@ -42,6 +49,8 @@ export type { ExportMarkdownOptions } from './utils'
 export { importCKEditorHTML, exportForLegacy } from './utils'
 export type { ImportCKEditorOptions } from './utils'
 export { safeLoadExtensions } from './utils'
+export { printContent } from './utils'
+export type { PrintOptions } from './utils'
 
 // Types
 export type {
@@ -60,6 +69,16 @@ export type {
   Comment,
   CommentThread,
   CommentStore,
+  CollaborationUser,
+  CollaborationOptions,
+  AIQuickAction,
+  AIContextLevel,
+  AIMetadata,
+  AIRequest,
+  AIResponse,
+  AIHandler,
+  AIOptions,
+  AIState,
 } from './types'
 
 // Constants
@@ -72,5 +91,17 @@ export {
 } from './types'
 
 // Upload handlers
+export { validateFile, uploadWithProgress } from './upload-handlers'
+export type { UploadProgress, BaseUploadOptions, UploadValidationError } from './upload-handlers'
+export { createS3UploadHandler } from './upload-handlers'
+export type { S3UploadOptions } from './upload-handlers'
+export { createCloudinaryUploadHandler } from './upload-handlers'
+export type { CloudinaryUploadOptions } from './upload-handlers'
+export { createLaravelUploadHandler } from './upload-handlers'
+export type { LaravelUploadOptions } from './upload-handlers'
 export { createDKIMediaHandler } from './upload-handlers'
 export type { DKIUploadResultExtended, DKIMediaHandlerOptions, DKISaveAsFileResponse, DKIMediaConfig } from './upload-handlers'
+
+// AI Handlers
+export { createProxyAIHandler, createDKIAIHandler, createLlamaAIHandler } from './ai-handlers'
+export type { ProxyAIHandlerOptions, DKIAIHandlerOptions, LlamaAIHandlerOptions } from './ai-handlers'

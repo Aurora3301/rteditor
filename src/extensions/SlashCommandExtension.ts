@@ -9,7 +9,7 @@ export interface SlashCommand {
   label: string
   description: string
   icon: string
-  category: 'format' | 'insert' | 'list' | 'media'
+  category: 'format' | 'insert' | 'list' | 'media' | 'ai'
   action: (editor: Editor) => void
 }
 

@@ -1,18 +1,50 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { RTEditor, basePreset } from '../../src'
-import type { UploadHandler } from '../../src'
+import type { UploadHandler, AIHandler, EditorPreset } from '../../src'
+import { createLlamaAIHandler } from '../../src/ai-handlers'
 import '../../src/themes/default.css'
 
 const content = ref('<p>Hello from <strong>RTEditor</strong>! Start editing here...</p>')
+
+// Create local LLaMA handler (connects to Ollama at localhost:11434)
+const llamaHandler: AIHandler = createLlamaAIHandler({
+  endpoint: 'http://localhost:11434/api/generate',
+  model: 'llama3.2', // Change to your installed model: llama3.1, mistral, codellama, etc.
+  systemPrompt: 'You are a helpful writing assistant. Provide clear, concise responses. Format output as plain text unless HTML is specifically requested.',
+  timeout: 120000, // 2 minutes for longer generations
+})
+
+// Extend basePreset to include AI button in toolbar
+const presetWithAI: EditorPreset = {
+  ...basePreset,
+  toolbar: [...basePreset.toolbar, '|', 'ai'],
+}
 
 const jsonOutput = ref<Record<string, unknown>>({})
 
 const mockUploadHandler: UploadHandler = async (file: File) => {
   console.log('[Demo] Uploading file:', file.name, file.type, file.size)
   await new Promise((resolve) => setTimeout(resolve, 1500))
+
+  // For images, create a real data URL from the file
+  if (file.type.startsWith('image/')) {
+    const dataUrl = await new Promise<string>((resolve) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.readAsDataURL(file)
+    })
+    return {
+      url: dataUrl,
+      alt: file.name,
+      filename: file.name,
+      filesize: file.size,
+    }
+  }
+
+  // For non-image files, return a mock URL
   return {
-    url: `https://via.placeholder.com/400x300?text=${encodeURIComponent(file.name)}`,
+    url: `https://example.com/uploads/${encodeURIComponent(file.name)}`,
     alt: file.name,
     filename: file.name,
     filesize: file.size,
@@ -39,8 +71,10 @@ function onJsonUpdate(json: Record<string, unknown>) {
         <h2>Editor</h2>
         <RTEditor
           v-model="content"
-          :preset="basePreset"
+          :preset="presetWithAI"
           :upload-handler="mockUploadHandler"
+          :ai-handler="llamaHandler"
+          :ai-options="{ contextLevel: 'standard', quickActions: ['simplify', 'grammar', 'summarize', 'expand', 'translate'] }"
           placeholder="Start typing here..."
           @update:json="onJsonUpdate"
         />

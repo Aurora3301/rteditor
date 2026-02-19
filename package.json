@@ -29,7 +29,13 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src --ext .ts,.vue",
     "format": "prettier --write src",
-    "typecheck": "vue-tsc --noEmit"
+    "typecheck": "vue-tsc --noEmit",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "release:patch": "npm version patch && git push && git push --tags",
+    "release:minor": "npm version minor && git push && git push --tags",
+    "release:major": "npm version major && git push && git push --tags"
   },
   "peerDependencies": {
     "vue": "^3.3.0"
@@ -54,6 +60,7 @@
     "@tiptap/core": "^3.19.0",
     "@tiptap/extension-bullet-list": "^3.19.0",
     "@tiptap/extension-code-block": "^3.19.0",
+    "@tiptap/extension-code-block-lowlight": "^3.19.0",
     "@tiptap/extension-color": "^3.19.0",
     "@tiptap/extension-heading": "^3.19.0",
     "@tiptap/extension-highlight": "^3.19.0",
@@ -80,9 +87,11 @@
     "@tiptap/suggestion": "^3.19.0",
     "@tiptap/vue-3": "^3.19.0",
     "dompurify": "^3.3.1",
-    "katex": "^0.16.28"
+    "katex": "^0.16.28",
+    "lowlight": "^3.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@typescript-eslint/eslint-plugin": "^8.55.0",
     "@typescript-eslint/parser": "^8.55.0",
     "@vitejs/plugin-vue": "^6.0.4",

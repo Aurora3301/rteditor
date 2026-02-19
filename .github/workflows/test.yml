@@ -1,45 +1,24 @@
+# Legacy test workflow — kept for develop branch compatibility.
+# Main CI is handled by ci.yml for the main branch and PRs.
 name: Test
 
 on:
   push:
-    branches: [main, develop]
+    branches: [develop]
   pull_request:
-    branches: [main, develop]
+    branches: [develop]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18, 20]
-    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20'
           cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Type check
-        run: npx tsc --noEmit --skipLibCheck
-      
-      - name: Run tests
-        run: npm run test
-      
-      - name: Build
-        run: npm run build
-      
-      - name: Verify build output
-        run: |
-          test -f dist/index.mjs || exit 1
-          test -f dist/index.cjs || exit 1
-          test -f dist/index.d.ts || exit 1
-          test -f dist/style.css || exit 1
-          echo "All build artifacts present ✓"
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
 

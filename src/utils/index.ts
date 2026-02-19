@@ -8,4 +8,7 @@ export type { ExportMarkdownOptions } from './exportMarkdown'
 export { importCKEditorHTML, exportForLegacy } from './importCKEditorHTML'
 export type { ImportCKEditorOptions } from './importCKEditorHTML'
 export { safeLoadExtensions } from './safeLoadExtensions'
-
+export { printContent } from './print'
+export type { PrintOptions } from './print'
+export { getAIPanelPosition } from './aiPanelPosition'
+export type { AIPanelPosition } from './aiPanelPosition'

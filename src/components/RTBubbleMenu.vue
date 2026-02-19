@@ -16,6 +16,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   'open-link-dialog': []
+  'ai:transform': []
 }>()
 
 const menuRef = ref<HTMLElement | null>(null)
@@ -230,6 +231,16 @@ onBeforeUnmount(() => {
         <span style="font-weight: 700; font-size: 14px;">{{ getItemDef(item)!.icon }}</span>
       </button>
     </template>
+
+    <!-- Ask AI button -->
+    <button
+      class="rte-toolbar__button rte-bubble-ai-btn"
+      aria-label="Ask AI"
+      data-tooltip="Ask AI"
+      data-testid="rte-bubble-ai"
+      @click="emit('ai:transform')"
+    >
+      <span style="font-size: 13px;">✨ AI</span>
+    </button>
   </div>
 </template>
-

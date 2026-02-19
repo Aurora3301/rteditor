@@ -1,0 +1,29 @@
+/* Touch-friendly tap targets */
+@media (pointer: coarse) {
+  .rte-toolbar button, .rte-bubble-menu button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Prevent iOS zoom */
+@media screen and (max-width: 768px) {
+  .rte-editor .ProseMirror { font-size: 16px; }
+  .rte-toolbar { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+  .rte-toolbar-separator { display: none; }
+}
+
+/* Keyboard open */
+.rte-keyboard-open .rte-toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--rte-toolbar-bg, #fff);
+  border-top: 1px solid var(--rte-border-color, #e0e0e0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rte-toolbar, .rte-bubble-menu { transition: none; }
+}

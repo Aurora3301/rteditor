@@ -3,8 +3,13 @@ import { ref, watch, provide, onMounted, onBeforeUnmount, computed, nextTick, sh
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import type { Extensions, JSONContent } from '@tiptap/core'
 import type { EditorPreset, ToolbarConfig, UploadHandler, FileSizeLimits, ThemeConfig, UploadResult } from '../types'
+import type { AIHandler, AIOptions, AIQuickAction } from '../types/ai'
 import { useTheme } from '../composables/useTheme'
+import { useVoiceToText } from '../composables/useVoiceToText'
+import { useMobileDetect } from '../composables/useMobileDetect'
+import { useAI } from '../composables/useAI'
 import { basePreset as defaultPreset } from '../presets'
+import { getAIPanelPosition } from '../utils/aiPanelPosition'
 import RTToolbar from './RTToolbar.vue'
 import RTBubbleMenu from './RTBubbleMenu.vue'
 import RTLinkDialog from './RTLinkDialog.vue'
@@ -14,6 +19,10 @@ import RTEmojiPicker from './RTEmojiPicker.vue'
 import RTColorPicker from './RTColorPicker.vue'
 import RTFormulaEditor from './RTFormulaEditor.vue'
 import RTWordCountPopover from './RTWordCountPopover.vue'
+import RTStampPicker from './RTStampPicker.vue'
+import RTAIPanel from './RTAIPanel.vue'
+import type { Stamp } from '../extensions/StampExtension'
+import { AIKeyboardShortcut } from '../extensions/AIKeyboardShortcut'
 import '../themes/default.css'
 import '../themes/dark.css'
 import '../themes/code.css'
@@ -32,6 +41,8 @@ const props = withDefaults(
     editable?: boolean
     autofocus?: boolean
     theme?: ThemeConfig
+    aiHandler?: AIHandler
+    aiOptions?: Partial<AIOptions>
   }>(),
   {
     modelValue: '',
@@ -58,6 +69,9 @@ if (props.theme?.name) {
   setTheme(props.theme.name)
 }
 
+// Mobile detection
+const { isMobile, isTouch, isKeyboardOpen } = useMobileDetect()
+
 // Editor state — shallowRef preserves class type through Vue reactivity
 const editor = shallowRef<Editor | null>(null)
 const isReady = ref(false)
@@ -71,6 +85,7 @@ const emojiPickerOpen = ref(false)
 const colorPickerOpen = ref(false)
 const formulaEditorOpen = ref(false)
 const wordCountOpen = ref(false)
+const stampPickerOpen = ref(false)
 
 // Toasts
 interface ToastItem {
@@ -94,7 +109,49 @@ function removeToast(id: number) {
 // Computed preset config
 const activePreset = computed(() => props.preset || defaultPreset)
 const toolbarConfig = computed(() => props.toolbar || activePreset.value.toolbar)
-const editorExtensions = computed(() => props.extensions || activePreset.value.extensions)
+
+// AI state
+const aiEnabled = computed(() => !!props.aiHandler)
+const aiPanelPosition = ref<{ top: number; left: number }>({ top: 0, left: 0 })
+
+const {
+  state: aiState,
+  open: aiOpen,
+  close: aiClose,
+  submit: aiSubmit,
+  accept: aiAccept,
+  acceptAndEdit: aiAcceptAndEdit,
+  reject: aiReject,
+  retry: aiRetry,
+} = useAI({
+  editor,
+  handler: props.aiHandler,
+  options: props.aiOptions,
+})
+
+function handleAIOpen() {
+  if (!aiEnabled.value || !editor.value) return
+  aiPanelPosition.value = getAIPanelPosition(editor.value)
+  aiOpen()
+}
+
+function handleAISubmit(prompt: string, action?: AIQuickAction) {
+  aiSubmit(prompt, action)
+}
+
+// Build editor extensions with AI shortcut if AI is enabled
+const editorExtensions = computed(() => {
+  const base = props.extensions || activePreset.value.extensions
+  if (aiEnabled.value) {
+    return [
+      ...base,
+      AIKeyboardShortcut.configure({
+        onTrigger: () => handleAIOpen(),
+      }),
+    ]
+  }
+  return base
+})
 
 // Image upload ref
 const imageUploadRef = ref<InstanceType<typeof RTImageUpload> | null>(null)
@@ -255,6 +312,24 @@ function handleFormulaInsert(payload: { latex: string; display: boolean }) {
   formulaEditorOpen.value = false
 }
 
+// Phase 3: Stamp handlers
+function handleStampSelect(stamp: Stamp) {
+  if (!editor.value) return
+  const { selection } = editor.value.state
+  if (selection.empty) {
+    addToast('Select text to apply a stamp', 'info')
+    return
+  }
+  editor.value.chain().focus().setStamp(stamp).run()
+  stampPickerOpen.value = false
+}
+
+function handleStampRemove() {
+  if (!editor.value) return
+  editor.value.chain().focus().removeStamp().run()
+  stampPickerOpen.value = false
+}
+
 // Fullscreen body scroll lock
 watch(isFullscreen, (val) => {
   if (val) {
@@ -280,16 +355,80 @@ const wordCountStats = computed(() => {
   return { words: 0, characters: 0, charactersWithSpaces: 0, sentences: 0, readingTime: 0 }
 })
 
-// Listen for custom image upload event from toolbar
-onMounted(() => {
-  const editorEl = document.querySelector('.rte-editor')
-  if (editorEl) {
-    editorEl.addEventListener('rte-image-upload', ((e: CustomEvent) => {
-      const file = e.detail?.file
-      if (file) handleImageUpload(file)
-    }) as EventListener)
+// Comment handler
+function handleAddComment() {
+  if (!editor.value) return
+  const { selection } = editor.value.state
+  if (selection.empty) {
+    addToast('Select text to add a comment', 'info')
+    return
   }
+  const commentId = `comment-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+  const threadId = `thread-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+  editor.value.chain().focus().addComment({ commentId, threadId }).run()
+  isSidebarOpen.value = true
+}
+
+// File attachment handler
+function getFileType(file: File): 'pdf' | 'word' | 'excel' | 'powerpoint' | 'unknown' {
+  const mime = file.type.toLowerCase()
+  if (mime === 'application/pdf') return 'pdf'
+  if (mime.includes('word') || mime.includes('document')) return 'word'
+  if (mime.includes('spreadsheet') || mime.includes('excel')) return 'excel'
+  if (mime.includes('presentation') || mime.includes('powerpoint')) return 'powerpoint'
+  return 'unknown'
+}
+
+async function handleFileAttachment(file: File) {
+  if (!editor.value) return
+  if (!props.uploadHandler) {
+    addToast('No upload handler configured for file attachments', 'error')
+    return
+  }
+  try {
+    const result = await props.uploadHandler(file)
+    if (result) {
+      editor.value.chain().focus().insertFileAttachment({
+        url: result.url,
+        filename: result.filename || file.name,
+        filesize: result.filesize || file.size,
+        filetype: getFileType(file),
+      }).run()
+      addToast('File attached successfully', 'success')
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'File upload failed'
+    addToast(message, 'error')
+  }
+}
+
+// Image and file upload handlers are now called directly via @image-upload and @file-upload events from RTToolbar
+
+// Voice-to-text
+const {
+  isSupported: voiceSupported,
+  isListening: voiceListening,
+  error: voiceError,
+  start: voiceStart,
+  stop: voiceStop,
+} = useVoiceToText({
+  onResult: (text, isFinal) => {
+    if (isFinal && editor.value) {
+      editor.value.chain().focus().insertContent(text).run()
+    }
+  },
+  onError: (errMsg) => {
+    addToast(errMsg, 'error')
+  },
 })
+
+function handleToggleVoice() {
+  if (voiceListening.value) {
+    voiceStop()
+  } else {
+    voiceStart()
+  }
+}
 
 // Expose editor for parent components
 defineExpose({ editor, isReady, addToast })
@@ -303,6 +442,9 @@ defineExpose({ editor, isReady, addToast })
       'rte-editor--fullscreen': isFullscreen,
       'rte-editor--sidebar-open': isSidebarOpen,
       'rte-editor--dark': isDark,
+      'rte-keyboard-open': isKeyboardOpen,
+      'rte-mobile': isMobile,
+      'rte-touch': isTouch,
     }"
     role="application"
     aria-label="Rich text editor"
@@ -319,6 +461,12 @@ defineExpose({ editor, isReady, addToast })
       @open-color-picker="colorPickerOpen = !colorPickerOpen"
       @open-formula-editor="formulaEditorOpen = true"
       @toggle-word-count="wordCountOpen = !wordCountOpen"
+      @add-comment="handleAddComment"
+      @toggle-voice="handleToggleVoice"
+      @open-stamp-picker="stampPickerOpen = !stampPickerOpen"
+      @image-upload="handleImageUpload"
+      @file-upload="handleFileAttachment"
+      @ai:open="handleAIOpen"
     />
 
     <div class="rte-body">
@@ -338,6 +486,7 @@ defineExpose({ editor, isReady, addToast })
       v-if="!readonly"
       :editor="editor"
       @open-link-dialog="openLinkDialog"
+      @ai:transform="handleAIOpen"
     />
 
     <RTLinkDialog
@@ -382,6 +531,28 @@ defineExpose({ editor, isReady, addToast })
     <RTWordCountPopover
       :is-open="wordCountOpen"
       :stats="wordCountStats"
+    />
+
+    <!-- Phase 3: Stamp Picker -->
+    <RTStampPicker
+      v-if="stampPickerOpen"
+      @select-stamp="handleStampSelect"
+      @remove-stamp="handleStampRemove"
+      @close="stampPickerOpen = false"
+    />
+
+    <!-- Phase 4: AI Panel -->
+    <RTAIPanel
+      v-if="aiEnabled"
+      :state="aiState"
+      :position="aiPanelPosition"
+      :quick-actions="aiOptions?.quickActions"
+      @submit="handleAISubmit"
+      @accept="aiAccept"
+      @accept-and-edit="aiAcceptAndEdit"
+      @reject="aiReject"
+      @retry="aiRetry"
+      @close="aiClose"
     />
 
     <div class="rte-toast-container" aria-live="polite">

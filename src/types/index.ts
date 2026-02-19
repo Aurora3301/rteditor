@@ -29,3 +29,16 @@ export {
 
 export type { Comment, CommentThread, CommentStore } from './comment'
 
+export type { CollaborationUser, CollaborationOptions } from './collaboration'
+
+export type {
+  AIQuickAction,
+  AIContextLevel,
+  AIMetadata,
+  AIRequest,
+  AIResponse,
+  AIHandler,
+  AIOptions,
+  AIState,
+} from './ai'
+

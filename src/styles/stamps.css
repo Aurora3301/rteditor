@@ -1,0 +1,164 @@
+/* --- Stamp Marks --- */
+.rte-stamp {
+  position: relative;
+  background: color-mix(in srgb, var(--stamp-color, #FFD700) 20%, transparent);
+  border-radius: 2px;
+  padding: 0 2px;
+  border-bottom: 2px solid color-mix(in srgb, var(--stamp-color, #FFD700) 50%, transparent);
+  transition: background var(--rte-transition-fast, 150ms ease);
+}
+
+.rte-stamp:hover {
+  background: color-mix(in srgb, var(--stamp-color, #FFD700) 35%, transparent);
+}
+
+.rte-stamp::after {
+  content: attr(data-stamp-emoji);
+  position: absolute;
+  top: -0.8em;
+  right: -0.5em;
+  font-size: 0.7em;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* --- Stamp Picker --- */
+.rte-stamp-picker {
+  position: absolute;
+  top: calc(var(--rte-toolbar-height, 44px) + 8px);
+  left: var(--rte-spacing-sm, 8px);
+  z-index: 50;
+  width: 300px;
+  max-height: 400px;
+  background: var(--rte-background, #ffffff);
+  border: 1px solid var(--rte-border, #e5e7eb);
+  border-radius: var(--rte-radius-lg, 8px);
+  box-shadow: var(--rte-shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.rte-stamp-picker__search {
+  padding: var(--rte-spacing-sm, 8px);
+  border-bottom: 1px solid var(--rte-border, #e5e7eb);
+}
+
+.rte-stamp-picker__search-input {
+  width: 100%;
+  padding: var(--rte-spacing-xs, 4px) var(--rte-spacing-sm, 8px);
+  border: 1px solid var(--rte-border, #e5e7eb);
+  border-radius: var(--rte-radius, 6px);
+  font-size: var(--rte-font-size-sm, 14px);
+  font-family: inherit;
+  color: var(--rte-text, #1f2937);
+  background: var(--rte-background, #ffffff);
+  box-sizing: border-box;
+}
+
+.rte-stamp-picker__search-input:focus {
+  outline: none;
+  border-color: var(--rte-focus, #2563eb);
+}
+
+.rte-stamp-picker__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--rte-spacing-sm, 8px);
+  min-height: 0;
+}
+
+.rte-stamp-picker__category-label {
+  font-size: var(--rte-font-size-xs, 12px);
+  font-weight: 600;
+  color: var(--rte-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--rte-spacing-xs, 4px);
+  margin-top: var(--rte-spacing-sm, 8px);
+}
+
+.rte-stamp-picker__category-label:first-child {
+  margin-top: 0;
+}
+
+.rte-stamp-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--rte-spacing-xs, 4px);
+  margin-bottom: var(--rte-spacing-xs, 4px);
+}
+
+.rte-stamp-picker__stamp {
+  display: flex;
+  align-items: center;
+  gap: var(--rte-spacing-xs, 4px);
+  padding: var(--rte-spacing-xs, 4px) var(--rte-spacing-sm, 8px);
+  border: 1px solid var(--rte-border, #e5e7eb);
+  border-radius: var(--rte-radius-sm, 4px);
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--rte-transition-fast, 150ms ease);
+  text-align: left;
+  font-family: inherit;
+}
+
+.rte-stamp-picker__stamp:hover {
+  background: color-mix(in srgb, var(--stamp-btn-color, #FFD700) 15%, transparent);
+  border-color: var(--stamp-btn-color, #FFD700);
+}
+
+.rte-stamp-picker__stamp--focused {
+  outline: 2px solid var(--rte-focus-ring, #2563eb);
+  outline-offset: 1px;
+}
+
+.rte-stamp-picker__stamp:focus-visible {
+  outline: 2px solid var(--rte-focus-ring, #2563eb);
+  outline-offset: 1px;
+}
+
+.rte-stamp-picker__emoji {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.rte-stamp-picker__label {
+  font-size: var(--rte-font-size-sm, 14px);
+  color: var(--rte-text, #1f2937);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rte-stamp-picker__empty {
+  text-align: center;
+  padding: var(--rte-spacing-lg, 24px);
+  color: var(--rte-text-placeholder, #9ca3af);
+  font-size: var(--rte-font-size-sm, 14px);
+}
+
+.rte-stamp-picker__footer {
+  border-top: 1px solid var(--rte-border, #e5e7eb);
+  padding: var(--rte-spacing-xs, 4px) var(--rte-spacing-sm, 8px);
+}
+
+.rte-stamp-picker__remove {
+  display: block;
+  width: 100%;
+  padding: var(--rte-spacing-xs, 4px) 0;
+  border: none;
+  background: transparent;
+  color: var(--rte-text-secondary, #6b7280);
+  font-size: var(--rte-font-size-xs, 12px);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.rte-stamp-picker__remove:hover {
+  color: var(--rte-text, #1f2937);
+}
+
