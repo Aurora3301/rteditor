@@ -321,6 +321,23 @@
   font-weight: 600;
 }
 
+/* Save/Download dropdown */
+.rte-save-dropdown {
+  min-width: 200px;
+}
+
+.rte-save-dropdown__item {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.rte-save-dropdown__icon {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 /* --- Body Layout --- */
 .rte-body {
   display: flex;

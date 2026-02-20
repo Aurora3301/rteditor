@@ -50,7 +50,7 @@ export const studentPreset: EditorPreset = {
     'highlight', '|',
     'bulletList', 'orderedList', 'checklist', '|',
     'link', 'emoji', '|',
-    'wordCount',
+    'wordCount', 'save',
   ],
   bubbleMenu: {
     enabled: true,

@@ -10,6 +10,11 @@ import { useMobileDetect } from '../composables/useMobileDetect'
 import { useAI } from '../composables/useAI'
 import { basePreset as defaultPreset } from '../presets'
 import { getAIPanelPosition } from '../utils/aiPanelPosition'
+import { exportHTML } from '../utils/exportHTML'
+import { exportJSON } from '../utils/exportJSON'
+import { exportMarkdown } from '../utils/exportMarkdown'
+import { exportDocx } from '../utils/exportDocx'
+import { exportPDF } from '../utils/exportPDF'
 import RTToolbar from './RTToolbar.vue'
 import RTBubbleMenu from './RTBubbleMenu.vue'
 import RTLinkDialog from './RTLinkDialog.vue'
@@ -404,6 +409,72 @@ async function handleFileAttachment(file: File) {
 
 // Image and file upload handlers are now called directly via @image-upload and @file-upload events from RTToolbar
 
+// Save / Download handler
+function triggerBlobDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+async function handleSaveDownload(format: string) {
+  if (!editor.value) return
+  try {
+    const timestamp = new Date().toISOString().slice(0, 10)
+    const baseName = `document-${timestamp}`
+
+    switch (format) {
+      case 'html': {
+        const html = exportHTML(editor.value)
+        const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+        triggerBlobDownload(blob, `${baseName}.html`)
+        break
+      }
+      case 'json': {
+        const json = exportJSON(editor.value)
+        const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json;charset=utf-8' })
+        triggerBlobDownload(blob, `${baseName}.json`)
+        break
+      }
+      case 'markdown': {
+        const json = exportJSON(editor.value)
+        const md = exportMarkdown(json)
+        const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' })
+        triggerBlobDownload(blob, `${baseName}.md`)
+        break
+      }
+      case 'docx': {
+        const html = exportHTML(editor.value)
+        const blob = await exportDocx(html, { title: baseName })
+        triggerBlobDownload(blob, `${baseName}.docx`)
+        break
+      }
+      case 'pdf': {
+        const html = exportHTML(editor.value)
+        exportPDF(html, { title: baseName })
+        break
+      }
+      case 'txt': {
+        const text = editor.value.getText()
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+        triggerBlobDownload(blob, `${baseName}.txt`)
+        break
+      }
+      default:
+        addToast(`Unknown format: ${format}`, 'error')
+        return
+    }
+    addToast(`Downloaded as ${format.toUpperCase()}`, 'success')
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Download failed'
+    addToast(message, 'error')
+  }
+}
+
 // Voice-to-text
 const {
   isSupported: voiceSupported,
@@ -467,6 +538,7 @@ defineExpose({ editor, isReady, addToast })
       @image-upload="handleImageUpload"
       @file-upload="handleFileAttachment"
       @ai:open="handleAIOpen"
+      @save:download="handleSaveDownload"
     />
 
     <div class="rte-body">

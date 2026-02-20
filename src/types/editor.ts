@@ -25,6 +25,7 @@ export type ToolbarItem =
   | 'voiceToText'
   | 'stamp'
   | 'ai'
+  | 'save'
   | '|'
 
 export type ToolbarConfig = ToolbarItem[]

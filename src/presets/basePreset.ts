@@ -74,7 +74,7 @@ export const basePreset: EditorPreset = {
     'link', 'image', 'emoji', 'attachFile', '|',
     'table', 'codeBlock', 'math', '|',
     'comment', 'horizontalRule', '|',
-    'wordCount', 'fullscreen',
+    'wordCount', 'fullscreen', 'save',
   ],
   placeholder: 'Start typing...',
 }

@@ -20,12 +20,15 @@ const emit = defineEmits<{
   'toggle-voice': []
   'open-stamp-picker': []
   'ai:open': []
+  'save:download': [format: string]
   'image-upload': [file: File]
   'file-upload': [file: File]
 }>()
 
 const headingDropdownOpen = ref(false)
 const headingDropdownRef = ref<HTMLElement | null>(null)
+const saveDropdownOpen = ref(false)
+const saveDropdownRef = ref<HTMLElement | null>(null)
 const toolbarRef = ref<HTMLElement | null>(null)
 const canScrollLeft = ref(false)
 const canScrollRight = ref(false)
@@ -307,6 +310,32 @@ function handleClickOutside(e: MouseEvent) {
   ) {
     headingDropdownOpen.value = false
   }
+  if (
+    saveDropdownOpen.value &&
+    saveDropdownRef.value &&
+    !saveDropdownRef.value.contains(e.target as Node)
+  ) {
+    saveDropdownOpen.value = false
+  }
+}
+
+// Save dropdown
+const saveFormats = [
+  { key: 'html', label: 'HTML (.html)', icon: '🌐' },
+  { key: 'json', label: 'JSON (.json)', icon: '📋' },
+  { key: 'markdown', label: 'Markdown (.md)', icon: '📝' },
+  { key: 'docx', label: 'Word (.docx)', icon: '📄' },
+  { key: 'pdf', label: 'PDF (.pdf)', icon: '📑' },
+  { key: 'txt', label: 'Plain Text (.txt)', icon: '📃' },
+]
+
+function toggleSaveDropdown() {
+  saveDropdownOpen.value = !saveDropdownOpen.value
+}
+
+function handleSaveFormat(format: string) {
+  emit('save:download', format)
+  saveDropdownOpen.value = false
 }
 
 // Icon SVG paths (inline, Feather-style)
@@ -345,6 +374,7 @@ const iconPaths: Record<string, string> = {
   microphone: '<rect x="9" y="1" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/>',
   stamp: '<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><text x="12" y="10" font-size="8" fill="currentColor" stroke="none" text-anchor="middle">⭐</text>',
   ai: '<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="none"/>',
+  save: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
 }
 
 // Image upload file input ref
@@ -507,6 +537,44 @@ onBeforeUnmount(() => {
         <svg viewBox="0 0 24 24" v-html="iconPaths.attachFile" />
         <span class="rte-tooltip">Attach File</span>
       </button>
+
+      <!-- Save/Download Dropdown -->
+      <div
+        v-else-if="item === 'save'"
+        ref="saveDropdownRef"
+        class="rte-toolbar__dropdown"
+      >
+        <button
+          class="rte-toolbar__button"
+          :aria-expanded="saveDropdownOpen"
+          aria-haspopup="listbox"
+          aria-label="Save / Download"
+          data-tooltip="Save / Download"
+          data-testid="rte-toolbar-save"
+          @click="toggleSaveDropdown"
+        >
+          <svg viewBox="0 0 24 24" v-html="iconPaths.save" />
+          <span class="rte-tooltip">Save / Download</span>
+        </button>
+        <div
+          v-if="saveDropdownOpen"
+          class="rte-toolbar__dropdown-menu rte-save-dropdown"
+          role="listbox"
+          aria-label="Download formats"
+        >
+          <button
+            v-for="fmt in saveFormats"
+            :key="fmt.key"
+            class="rte-toolbar__dropdown-item rte-save-dropdown__item"
+            role="option"
+            :data-testid="`rte-save-${fmt.key}`"
+            @click="handleSaveFormat(fmt.key)"
+          >
+            <span class="rte-save-dropdown__icon">{{ fmt.icon }}</span>
+            <span>{{ fmt.label }}</span>
+          </button>
+        </div>
+      </div>
 
       <!-- Regular toolbar buttons -->
       <button

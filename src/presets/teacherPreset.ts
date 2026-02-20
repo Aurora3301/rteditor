@@ -98,7 +98,7 @@ export const teacherPreset: EditorPreset = {
     'table', 'codeBlock', 'math', '|',
     'comment', 'commentSidebar', 'horizontalRule', '|',
     'stamp', '|',
-    'wordCount', 'fullscreen',
+    'wordCount', 'fullscreen', 'save',
   ],
   bubbleMenu: {
     enabled: true,
