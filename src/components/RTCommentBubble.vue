@@ -141,7 +141,7 @@ import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import type { CommentStore, CommentThread, Comment } from '../types/comment'
 import RTEmojiPicker from './RTEmojiPicker.vue'
 
-interface Props {
+export interface Props {
   editor: any | null
   comments: CommentStore
   currentUserId: string

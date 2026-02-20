@@ -26,7 +26,11 @@ export async function exportDocx(html: string, options: ExportDocxOptions = {}):
   `
 
   // Dynamic import to keep it tree-shakeable
-  const HTMLtoDOCX = (await import('@turbodocx/html-to-docx')).default
+  const mod = await import('@turbodocx/html-to-docx')
+  const HTMLtoDOCX = typeof mod.default === 'function' ? mod.default : typeof mod === 'function' ? mod : (mod as any)
+  if (typeof HTMLtoDOCX !== 'function') {
+    throw new Error('Failed to load DOCX converter — html-to-docx module did not export a function')
+  }
 
   const blob = await HTMLtoDOCX(wrappedHtml, null, {
     table: { row: { cantSplit: true } },

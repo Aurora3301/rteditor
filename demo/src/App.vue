@@ -75,6 +75,9 @@ function onJsonUpdate(json: Record<string, unknown>) {
           :upload-handler="mockUploadHandler"
           :ai-handler="llamaHandler"
           :ai-options="{ contextLevel: 'standard', quickActions: ['simplify', 'grammar', 'summarize', 'expand', 'translate'] }"
+          current-user-id="teacher-1"
+          current-user-role="teacher"
+          current-user-name="Demo Teacher"
           placeholder="Start typing here..."
           @update:json="onJsonUpdate"
         />

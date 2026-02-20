@@ -26,7 +26,10 @@ import RTFormulaEditor from './RTFormulaEditor.vue'
 import RTWordCountPopover from './RTWordCountPopover.vue'
 import RTStampPicker from './RTStampPicker.vue'
 import RTAIPanel from './RTAIPanel.vue'
+import RTCommentBubble from './RTCommentBubble.vue'
+import RTCommentSidebar from './RTCommentSidebar.vue'
 import type { Stamp } from '../extensions/StampExtension'
+import type { Comment, CommentThread, CommentStore } from '../types/comment'
 import { AIKeyboardShortcut } from '../extensions/AIKeyboardShortcut'
 import '../themes/default.css'
 import '../themes/dark.css'
@@ -48,12 +51,18 @@ const props = withDefaults(
     theme?: ThemeConfig
     aiHandler?: AIHandler
     aiOptions?: Partial<AIOptions>
+    currentUserId?: string
+    currentUserRole?: 'teacher' | 'student'
+    currentUserName?: string
   }>(),
   {
     modelValue: '',
     editable: true,
     autofocus: false,
     readonly: false,
+    currentUserId: 'user-1',
+    currentUserRole: 'teacher',
+    currentUserName: 'User',
   },
 )
 
@@ -91,6 +100,84 @@ const colorPickerOpen = ref(false)
 const formulaEditorOpen = ref(false)
 const wordCountOpen = ref(false)
 const stampPickerOpen = ref(false)
+
+// Template refs for click-outside handling
+const emojiPickerRef = ref<HTMLElement | null>(null)
+const colorPickerRef = ref<HTMLElement | null>(null)
+const formulaEditorRef = ref<HTMLElement | null>(null)
+const wordCountRef = ref<HTMLElement | null>(null)
+const stampPickerRef = ref<HTMLElement | null>(null)
+const aiPanelRef = ref<HTMLElement | null>(null)
+const commentBubbleRef = ref<InstanceType<typeof RTCommentBubble> | null>(null)
+
+// Reactive CommentStore
+const commentStoreComments = ref<Map<string, Comment>>(new Map())
+const commentStoreThreads = ref<Map<string, CommentThread>>(new Map())
+
+const commentStore: CommentStore = {
+  get comments() { return commentStoreComments.value },
+  get threads() { return commentStoreThreads.value },
+  addComment(comment: Comment) {
+    commentStoreComments.value.set(comment.id, comment)
+    if (!comment.parentId) {
+      // Root comment — create a new thread keyed by comment.id
+      commentStoreThreads.value.set(comment.id, {
+        rootComment: comment,
+        replies: [],
+        isResolved: false,
+        participantCount: 1,
+      })
+    } else {
+      // Reply — add to existing thread
+      const thread = commentStoreThreads.value.get(comment.parentId)
+      if (thread) {
+        thread.replies.push(comment)
+        // Count unique participants
+        const participants = new Set([thread.rootComment.authorId, ...thread.replies.map(r => r.authorId)])
+        thread.participantCount = participants.size
+      }
+    }
+    // Trigger reactivity
+    commentStoreComments.value = new Map(commentStoreComments.value)
+    commentStoreThreads.value = new Map(commentStoreThreads.value)
+  },
+  getComment(id: string) {
+    return commentStoreComments.value.get(id)
+  },
+  getThread(id: string) {
+    return commentStoreThreads.value.get(id)
+  },
+  resolveComment(id: string, resolvedBy: string) {
+    const thread = commentStoreThreads.value.get(id)
+    if (thread) {
+      thread.isResolved = !thread.isResolved
+      thread.rootComment.resolvedAt = thread.isResolved ? new Date() : undefined
+      thread.rootComment.resolvedBy = thread.isResolved ? resolvedBy : undefined
+      commentStoreThreads.value = new Map(commentStoreThreads.value)
+    }
+  },
+  deleteComment(id: string) {
+    // If it's a root comment, remove the whole thread
+    if (commentStoreThreads.value.has(id)) {
+      const thread = commentStoreThreads.value.get(id)!
+      // Remove all replies
+      thread.replies.forEach(r => commentStoreComments.value.delete(r.id))
+      commentStoreComments.value.delete(id)
+      commentStoreThreads.value.delete(id)
+    } else {
+      // It's a reply — find and remove from thread
+      commentStoreComments.value.delete(id)
+      commentStoreThreads.value.forEach(thread => {
+        thread.replies = thread.replies.filter(r => r.id !== id)
+      })
+    }
+    commentStoreComments.value = new Map(commentStoreComments.value)
+    commentStoreThreads.value = new Map(commentStoreThreads.value)
+  },
+  getAllComments() {
+    return Array.from(commentStoreComments.value.values())
+  },
+}
 
 // Toasts
 interface ToastItem {
@@ -254,11 +341,36 @@ function handleKeydown(e: KeyboardEvent) {
 
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
+  document.addEventListener('click', handleClickOutsidePopovers, true)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown)
+  document.removeEventListener('click', handleClickOutsidePopovers, true)
 })
+
+// Click-outside handler for all popovers
+function handleClickOutsidePopovers(event: MouseEvent) {
+  const target = event.target as Node
+  if (emojiPickerOpen.value && emojiPickerRef.value && !emojiPickerRef.value.contains(target)) {
+    emojiPickerOpen.value = false
+  }
+  if (colorPickerOpen.value && colorPickerRef.value && !colorPickerRef.value.contains(target)) {
+    colorPickerOpen.value = false
+  }
+  if (formulaEditorOpen.value && formulaEditorRef.value && !formulaEditorRef.value.contains(target)) {
+    formulaEditorOpen.value = false
+  }
+  if (wordCountOpen.value && wordCountRef.value && !wordCountRef.value.contains(target)) {
+    wordCountOpen.value = false
+  }
+  if (stampPickerOpen.value && stampPickerRef.value && !stampPickerRef.value.contains(target)) {
+    stampPickerOpen.value = false
+  }
+  if (aiState.isOpen && aiPanelRef.value && !aiPanelRef.value.contains(target)) {
+    aiClose()
+  }
+}
 
 // Handle link dialog open from toolbar/bubble
 function openLinkDialog() {
@@ -368,10 +480,103 @@ function handleAddComment() {
     addToast('Select text to add a comment', 'info')
     return
   }
+
+  // Prompt user for comment text
+  const commentText = window.prompt('Add a comment:')
+  if (!commentText || !commentText.trim()) return
+
   const commentId = `comment-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-  const threadId = `thread-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+  const threadId = commentId // thread is keyed by root comment ID
+
+  // Get highlighted text from selection
+  const { from, to } = selection
+  const highlightedText = editor.value.state.doc.textBetween(from, to, ' ')
+
+  // Create Comment object
+  const comment: Comment = {
+    id: commentId,
+    documentId: 'doc-1',
+    authorId: props.currentUserId,
+    authorName: props.currentUserName,
+    authorRole: props.currentUserRole,
+    content: commentText.trim(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    highlightRange: { from, to },
+    highlightedText,
+  }
+
+  // Add comment mark to editor
   editor.value.chain().focus().addComment({ commentId, threadId }).run()
+
+  // Add to store
+  commentStore.addComment(comment)
+
   isSidebarOpen.value = true
+}
+
+// Comment event handlers
+function handleCommentReply(payload: { threadId: string; content: string; attachments?: File[] }) {
+  const replyId = `comment-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+  const thread = commentStore.getThread(payload.threadId)
+  if (!thread) return
+
+  const reply: Comment = {
+    id: replyId,
+    documentId: 'doc-1',
+    authorId: props.currentUserId,
+    authorName: props.currentUserName,
+    authorRole: props.currentUserRole,
+    content: payload.content,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    parentId: payload.threadId,
+    highlightRange: thread.rootComment.highlightRange,
+    highlightedText: thread.rootComment.highlightedText,
+  }
+
+  commentStore.addComment(reply)
+}
+
+function handleCommentResolve(commentId: string) {
+  commentStore.resolveComment(commentId, props.currentUserId)
+}
+
+function handleCommentDelete(commentId: string) {
+  commentStore.deleteComment(commentId)
+  // Also remove the comment mark from the editor if it's a root comment
+  if (editor.value) {
+    try {
+      editor.value.chain().focus().removeComment(commentId).run()
+    } catch {
+      // Comment mark might already be removed
+    }
+  }
+}
+
+function handleScrollToComment(commentId: string) {
+  if (!editor.value) return
+  const { doc } = editor.value.state
+  doc.descendants((node: any, pos: number) => {
+    node.marks?.forEach((mark: any) => {
+      if (mark.type.name === 'comment' && (mark.attrs.commentId === commentId || mark.attrs.threadId === commentId)) {
+        try {
+          const domNode = editor.value!.view.domAtPos(pos)
+          const el = domNode.node instanceof HTMLElement ? domNode.node : (domNode.node as any).parentElement
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            const commentEl = el.closest?.('[data-comment-id]') || el
+            commentEl.classList?.add('rte-comment-highlight--active')
+            setTimeout(() => {
+              commentEl.classList?.remove('rte-comment-highlight--active')
+            }, 1500)
+          }
+        } catch {
+          // Ignore scroll errors
+        }
+      }
+    })
+  })
 }
 
 // File attachment handler
@@ -550,9 +755,33 @@ defineExpose({ editor, isReady, addToast })
         @paste="imageUploadRef?.handlePaste($event)"
       />
       <aside v-if="isSidebarOpen" class="rte-sidebar">
+        <RTCommentSidebar
+          :editor="editor"
+          :comments="commentStore"
+          :current-user-id="currentUserId"
+          :current-user-role="currentUserRole"
+          :is-open="isSidebarOpen"
+          @close="isSidebarOpen = false"
+          @scroll-to-comment="handleScrollToComment"
+          @resolve="handleCommentResolve"
+          @delete="handleCommentDelete"
+        />
         <slot name="sidebar" />
       </aside>
     </div>
+
+    <!-- Comment Bubble (appears when clicking on highlighted comment text) -->
+    <RTCommentBubble
+      ref="commentBubbleRef"
+      :editor="editor"
+      :comments="commentStore"
+      :current-user-id="currentUserId"
+      :current-user-role="currentUserRole"
+      @reply="handleCommentReply"
+      @resolve="handleCommentResolve"
+      @delete="handleCommentDelete"
+      @close="() => {}"
+    />
 
     <RTBubbleMenu
       v-if="!readonly"
@@ -578,54 +807,61 @@ defineExpose({ editor, isReady, addToast })
     />
 
     <!-- Phase 2: Emoji Picker -->
-    <RTEmojiPicker
-      v-if="emojiPickerOpen"
-      :on-select="handleEmojiSelect"
-      @close="emojiPickerOpen = false"
-    />
+    <div v-if="emojiPickerOpen" ref="emojiPickerRef">
+      <RTEmojiPicker
+        :on-select="handleEmojiSelect"
+        @close="emojiPickerOpen = false"
+      />
+    </div>
 
     <!-- Phase 2: Color Picker -->
-    <RTColorPicker
-      v-if="colorPickerOpen"
-      @select-text-color="handleTextColorSelect"
-      @select-highlight-color="handleHighlightColorSelect"
-      @close="colorPickerOpen = false"
-    />
+    <div v-if="colorPickerOpen" ref="colorPickerRef">
+      <RTColorPicker
+        @select-text-color="handleTextColorSelect"
+        @select-highlight-color="handleHighlightColorSelect"
+        @close="colorPickerOpen = false"
+      />
+    </div>
 
     <!-- Phase 2: Formula Editor -->
-    <RTFormulaEditor
-      v-if="formulaEditorOpen"
-      @insert="handleFormulaInsert"
-      @cancel="formulaEditorOpen = false"
-    />
+    <div v-if="formulaEditorOpen" ref="formulaEditorRef">
+      <RTFormulaEditor
+        @insert="handleFormulaInsert"
+        @cancel="formulaEditorOpen = false"
+      />
+    </div>
 
     <!-- Phase 2: Word Count Popover -->
-    <RTWordCountPopover
-      :is-open="wordCountOpen"
-      :stats="wordCountStats"
-    />
+    <div ref="wordCountRef">
+      <RTWordCountPopover
+        :is-open="wordCountOpen"
+        :stats="wordCountStats"
+      />
+    </div>
 
     <!-- Phase 3: Stamp Picker -->
-    <RTStampPicker
-      v-if="stampPickerOpen"
-      @select-stamp="handleStampSelect"
-      @remove-stamp="handleStampRemove"
-      @close="stampPickerOpen = false"
-    />
+    <div v-if="stampPickerOpen" ref="stampPickerRef">
+      <RTStampPicker
+        @select-stamp="handleStampSelect"
+        @remove-stamp="handleStampRemove"
+        @close="stampPickerOpen = false"
+      />
+    </div>
 
     <!-- Phase 4: AI Panel -->
-    <RTAIPanel
-      v-if="aiEnabled"
-      :state="aiState"
-      :position="aiPanelPosition"
-      :quick-actions="aiOptions?.quickActions"
-      @submit="handleAISubmit"
-      @accept="aiAccept"
-      @accept-and-edit="aiAcceptAndEdit"
-      @reject="aiReject"
-      @retry="aiRetry"
-      @close="aiClose"
-    />
+    <div v-if="aiEnabled" ref="aiPanelRef">
+      <RTAIPanel
+        :state="aiState"
+        :position="aiPanelPosition"
+        :quick-actions="aiOptions?.quickActions"
+        @submit="handleAISubmit"
+        @accept="aiAccept"
+        @accept-and-edit="aiAcceptAndEdit"
+        @reject="aiReject"
+        @retry="aiRetry"
+        @close="aiClose"
+      />
+    </div>
 
     <div class="rte-toast-container" aria-live="polite">
       <RTToast
