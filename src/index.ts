@@ -18,6 +18,7 @@ export { default as RTVoiceButton } from './components/RTVoiceButton.vue'
 export { default as RTTagInput } from './components/RTTagInput.vue'
 export { default as RTStampPicker } from './components/RTStampPicker.vue'
 export { default as RTAIPanel } from './components/RTAIPanel.vue'
+export { default as RTResizableImage } from './components/RTResizableImage.vue'
 
 // Presets
 export { basePreset, teacherPreset, studentPreset, defaultLessonPlanTemplates, buildLessonPlanHTML } from './presets'
@@ -34,8 +35,8 @@ export type { UseAIOptions, UseAIReturn } from './composables'
 export { t, setLocale, registerLocale, getLocale } from './i18n'
 
 // Extensions
-export { ChecklistExtension, MathExtension, ImageUploadExtension, CodeSnippetExtension, SUPPORTED_LANGUAGES, lowlightInstance, WordCountExtension, countWords, HighlightExtension, DEFAULT_TEXT_COLORS, DEFAULT_HIGHLIGHT_COLORS, FileAttachmentExtension, CommentExtension, SlashCommandExtension, defaultSlashCommands, TagsExtension, StampExtension, DEFAULT_STAMPS, VoiceToTextExtension, DragHandleExtension, CollaborationExtension, CollaborationCursorExtension, AIKeyboardShortcut } from './extensions'
-export type { ChecklistExtensionOptions, MathExtensionOptions, ImageUploadOptions, CodeSnippetOptions, SupportedLanguage, WordCountExtensionOptions, WordCountStorage, HighlightExtensionOptions, FileAttachmentOptions, FileAttachmentType, CommentExtensionOptions, SlashCommandOptions, SlashCommand, TagsExtensionOptions, TagsStorage, StampExtensionOptions, Stamp, VoiceToTextExtensionOptions, DragHandleOptions, CollaborationExtensionOptions, CollaborationCursorOptions, AIKeyboardShortcutOptions } from './extensions'
+export { ChecklistExtension, MathExtension, ImageUploadExtension, CodeSnippetExtension, SUPPORTED_LANGUAGES, lowlightInstance, WordCountExtension, countWords, HighlightExtension, DEFAULT_TEXT_COLORS, DEFAULT_HIGHLIGHT_COLORS, FileAttachmentExtension, CommentExtension, SlashCommandExtension, defaultSlashCommands, TagsExtension, StampExtension, DEFAULT_STAMPS, VoiceToTextExtension, DragHandleExtension, CollaborationExtension, CollaborationCursorExtension, AIKeyboardShortcut, ResizableImageExtension } from './extensions'
+export type { ChecklistExtensionOptions, MathExtensionOptions, ImageUploadOptions, CodeSnippetOptions, SupportedLanguage, WordCountExtensionOptions, WordCountStorage, HighlightExtensionOptions, FileAttachmentOptions, FileAttachmentType, CommentExtensionOptions, SlashCommandOptions, SlashCommand, TagsExtensionOptions, TagsStorage, StampExtensionOptions, Stamp, VoiceToTextExtensionOptions, DragHandleOptions, CollaborationExtensionOptions, CollaborationCursorOptions, AIKeyboardShortcutOptions, ResizableImageOptions } from './extensions'
 
 // Utilities
 export { sanitizeHTML, stripAllHTML, getAIPanelPosition } from './utils'

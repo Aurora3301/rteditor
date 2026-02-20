@@ -1,7 +1,7 @@
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
 import Link from '@tiptap/extension-link'
-import Image from '@tiptap/extension-image'
+import { ResizableImageExtension } from '../extensions/ResizableImageExtension'
 import TextAlign from '@tiptap/extension-text-align'
 import Subscript from '@tiptap/extension-subscript'
 import Superscript from '@tiptap/extension-superscript'
@@ -38,7 +38,7 @@ export const basePreset: EditorPreset = {
         target: '_blank',
       },
     }),
-    Image.configure({
+    ResizableImageExtension.configure({
       inline: false,
       allowBase64: false,
     }),

@@ -461,6 +461,80 @@
   font-size: inherit;
 }
 
+/* --- Resizable Image --- */
+.rte-resizable-image-wrapper {
+  display: block;
+  margin: 0.5em 0;
+  line-height: 0;
+}
+
+.rte-resizable-image {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+}
+
+.rte-resizable-image img {
+  display: block;
+  border-radius: var(--rte-radius);
+  max-width: 100%;
+  height: auto;
+  cursor: default;
+}
+
+.rte-resizable-image-wrapper.is-selected .rte-resizable-image {
+  outline: 2px solid var(--rte-primary);
+  outline-offset: 2px;
+}
+
+.rte-resizable-image-wrapper.is-resizing .rte-resizable-image {
+  outline: 2px solid var(--rte-primary);
+  outline-offset: 2px;
+}
+
+/* Resize handles */
+.rte-resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--rte-primary, #2563eb);
+  border: 2px solid #fff;
+  border-radius: 2px;
+  z-index: 10;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.rte-resize-handle--se {
+  bottom: -6px;
+  right: -6px;
+  cursor: nwse-resize;
+}
+
+.rte-resize-handle--sw {
+  bottom: -6px;
+  left: -6px;
+  cursor: nesw-resize;
+}
+
+.rte-resize-handle--ne {
+  top: -6px;
+  right: -6px;
+  cursor: nesw-resize;
+}
+
+.rte-resize-handle--nw {
+  top: -6px;
+  left: -6px;
+  cursor: nwse-resize;
+}
+
+.rte-resize-handle:hover {
+  background: var(--rte-primary-hover, #1d4ed8);
+  transform: scale(1.2);
+}
+
+/* Legacy fallback for non-NodeView images */
 .rte-content .ProseMirror img {
   max-width: 100%;
   height: auto;
