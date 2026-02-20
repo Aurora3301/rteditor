@@ -75,9 +75,10 @@ function onResizeMove(e: MouseEvent) {
     newWidth = Math.round(newHeight * ratio)
   }
 
-  // Clamp to container width
-  if (imgRef.value?.parentElement) {
-    const containerWidth = imgRef.value.parentElement.getBoundingClientRect().width
+  // Clamp to editor content width (use the block-level wrapper, not the inline-block parent)
+  const wrapperEl = imgRef.value?.closest('.rte-resizable-image-wrapper') as HTMLElement | null
+  if (wrapperEl) {
+    const containerWidth = wrapperEl.getBoundingClientRect().width
     if (newWidth > containerWidth) {
       newWidth = containerWidth
       newHeight = Math.round(newWidth / ratio)
