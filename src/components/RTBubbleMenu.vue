@@ -168,6 +168,12 @@ watch(
         pluginKey,
         editor,
         element: menuRef.value,
+        options: {
+          placement: 'top',
+          offset: { mainAxis: 8, crossAxis: 0 },
+          flip: { fallbackPlacements: ['bottom'] },
+          shift: { padding: 8 },
+        },
         shouldShow: ({ editor: ed, state }) => {
           const { empty } = state.selection
           // Show bubble menu when text is selected (not empty) and not on an image node
