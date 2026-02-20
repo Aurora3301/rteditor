@@ -54,7 +54,7 @@
   "author": "timothyphchan",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/Aurora3301/rteditor.git"
   },
   "dependencies": {
     "@tiptap/core": "^3.19.0",
