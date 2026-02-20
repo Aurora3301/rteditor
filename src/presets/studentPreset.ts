@@ -46,7 +46,7 @@ export const studentPreset: EditorPreset = {
   toolbar: [
     'undo', 'redo', '|',
     'heading', '|',
-    'bold', 'italic', 'underline', '|',
+    'bold', 'italic', 'underline', 'clearFormatting', '|',
     'highlight', '|',
     'bulletList', 'orderedList', 'checklist', '|',
     'link', 'emoji', '|',

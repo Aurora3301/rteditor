@@ -26,6 +26,7 @@ export type ToolbarItem =
   | 'stamp'
   | 'ai'
   | 'save'
+  | 'clearFormatting'
   | '|'
 
 export type ToolbarConfig = ToolbarItem[]

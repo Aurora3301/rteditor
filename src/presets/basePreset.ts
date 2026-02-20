@@ -67,7 +67,7 @@ export const basePreset: EditorPreset = {
     'undo', 'redo', '|',
     'heading', '|',
     'bold', 'italic', 'underline', 'strike', '|',
-    'subscript', 'superscript', '|',
+    'subscript', 'superscript', 'clearFormatting', '|',
     'textColor', 'highlight', '|',
     'alignLeft', 'alignCenter', 'alignRight', '|',
     'bulletList', 'orderedList', 'checklist', '|',

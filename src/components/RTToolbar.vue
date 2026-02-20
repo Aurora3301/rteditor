@@ -224,6 +224,12 @@ function getItemDef(item: ToolbarItem): ToolbarItemDef | null {
       shortcut: 'Ctrl+K',
       action: () => emit('ai:open'),
     },
+    clearFormatting: {
+      icon: 'clearFormatting',
+      label: 'Clear Formatting',
+      shortcut: 'Ctrl+\\',
+      action: () => editor.chain().focus().clearNodes().unsetAllMarks().run(),
+    },
   }
 
   if (!defs[item]) {
@@ -375,6 +381,7 @@ const iconPaths: Record<string, string> = {
   stamp: '<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><text x="12" y="10" font-size="8" fill="currentColor" stroke="none" text-anchor="middle">⭐</text>',
   ai: '<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="none"/>',
   save: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  clearFormatting: '<path d="M4 7h7m0 0L7 3m4 4l4 10"/><line x1="14" y1="20" x2="20" y2="20"/><line x1="16" y1="17" x2="20" y2="17"/><path d="M18 3l-4 4" stroke-width="2.5"/>',
 }
 
 // Image upload file input ref

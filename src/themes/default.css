@@ -168,6 +168,7 @@
 }
 
 .rte-toolbar__button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1590,6 +1591,21 @@
 .rte-editor--fullscreen .rte-toolbar {
   justify-content: center;
   border-bottom: 1px solid var(--rte-border);
+  padding-top: var(--rte-spacing-sm);
+  padding-bottom: var(--rte-spacing-sm);
+  padding-left: var(--rte-spacing-lg);
+  padding-right: var(--rte-spacing-lg);
+}
+
+/* In fullscreen, tooltips appear BELOW buttons (above would be clipped by screen top) */
+.rte-editor--fullscreen .rte-tooltip {
+  bottom: auto;
+  top: calc(100% + 6px);
+}
+
+.rte-editor--fullscreen [data-tooltip]::after {
+  bottom: auto;
+  top: calc(100% + 6px);
 }
 
 /* --- Readonly enhancements --- */

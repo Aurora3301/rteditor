@@ -90,7 +90,7 @@ export const teacherPreset: EditorPreset = {
     'undo', 'redo', '|',
     'heading', 'textSize', '|',
     'bold', 'italic', 'underline', 'strike', '|',
-    'subscript', 'superscript', '|',
+    'subscript', 'superscript', 'clearFormatting', '|',
     'textColor', 'highlight', '|',
     'alignLeft', 'alignCenter', 'alignRight', '|',
     'bulletList', 'orderedList', 'checklist', '|',
