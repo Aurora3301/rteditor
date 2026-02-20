@@ -29,6 +29,7 @@ export const defaultSlashCommands: SlashCommand[] = [
   { name: 'blockquote', label: 'Quote', description: 'Block quote', icon: '"', category: 'format', action: (e) => e.chain().focus().toggleBlockquote().run() },
   { name: 'horizontalRule', label: 'Divider', description: 'Horizontal line', icon: '—', category: 'insert', action: (e) => e.chain().focus().setHorizontalRule().run() },
   { name: 'table', label: 'Table', description: 'Insert a table', icon: '⊞', category: 'insert', action: (e) => e.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run() },
+  { name: 'ai', label: 'Ask AI', description: 'Generate content with AI', icon: '✨', category: 'ai', action: (e) => { const aiExt = e.extensionManager.extensions.find(ext => ext.name === 'aiKeyboardShortcut'); if (aiExt?.options?.onTrigger) { aiExt.options.onTrigger() } } },
 ]
 
 function fuzzyMatch(query: string, text: string): boolean {

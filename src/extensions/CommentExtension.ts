@@ -85,6 +85,47 @@ export const CommentExtension = Mark.create<CommentExtensionOptions>({
   // Allow multiple overlapping comments
   excludes: '',
 
+  addKeyboardShortcuts() {
+    return {
+      'Alt-ArrowDown': () => {
+        const { state } = this.editor
+        const { from } = state.selection
+        const commentPositions: number[] = []
+
+        state.doc.descendants((node, pos) => {
+          if (node.marks.some(mark => mark.type.name === this.name)) {
+            commentPositions.push(pos)
+          }
+        })
+
+        const next = commentPositions.find(pos => pos > from)
+        if (next !== undefined) {
+          this.editor.commands.setTextSelection(next)
+          return true
+        }
+        return false
+      },
+      'Alt-ArrowUp': () => {
+        const { state } = this.editor
+        const { from } = state.selection
+        const commentPositions: number[] = []
+
+        state.doc.descendants((node, pos) => {
+          if (node.marks.some(mark => mark.type.name === this.name)) {
+            commentPositions.push(pos)
+          }
+        })
+
+        const prevPositions = commentPositions.filter(pos => pos < from)
+        if (prevPositions.length > 0) {
+          this.editor.commands.setTextSelection(prevPositions[prevPositions.length - 1])
+          return true
+        }
+        return false
+      },
+    }
+  },
+
   addCommands() {
     return {
       addComment:

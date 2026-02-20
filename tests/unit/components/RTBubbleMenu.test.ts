@@ -25,13 +25,14 @@ function createBubbleMockEditor() {
 }
 
 describe('RTBubbleMenu', () => {
-  it('renders with role="toolbar" and aria-label="Text formatting"', () => {
+  it('renders with role="dialog", aria-modal="true", and aria-label="Text formatting"', () => {
     const editor = createBubbleMockEditor()
     const wrapper = mount(RTBubbleMenu, {
       props: { editor: editor as any },
     })
     const menu = wrapper.find('[data-testid="rte-bubble-menu"]')
-    expect(menu.attributes('role')).toBe('toolbar')
+    expect(menu.attributes('role')).toBe('dialog')
+    expect(menu.attributes('aria-modal')).toBe('true')
     expect(menu.attributes('aria-label')).toBe('Text formatting')
   })
 

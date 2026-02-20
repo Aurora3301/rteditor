@@ -39,6 +39,7 @@ export type { ChecklistExtensionOptions, MathExtensionOptions, ImageUploadOption
 
 // Utilities
 export { sanitizeHTML, stripAllHTML, getAIPanelPosition } from './utils'
+export { announceToScreenReader, trapFocus, getShortcutLabel } from './utils'
 export type { AIPanelPosition } from './utils'
 export { exportHTML, exportRawHTML } from './utils'
 export { exportJSON, validateJSON } from './utils'

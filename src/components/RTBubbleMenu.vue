@@ -3,14 +3,17 @@ import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import type { Editor } from '@tiptap/vue-3'
 import { BubbleMenuPlugin } from '@tiptap/extension-bubble-menu'
 import type { ToolbarItem } from '../types'
+import { trapFocus } from '../utils/a11y'
 
 const props = withDefaults(
   defineProps<{
     editor: Editor | null
     items?: ToolbarItem[]
+    aiEnabled?: boolean
   }>(),
   {
     items: () => ['textSize', 'bold', 'italic', 'underline', 'link'] as ToolbarItem[],
+    aiEnabled: true,
   },
 )
 
@@ -21,6 +24,28 @@ const emit = defineEmits<{
 
 const menuRef = ref<HTMLElement | null>(null)
 const pluginKey = 'rteBubbleMenu'
+const cleanupFocusTrap = ref<(() => void) | null>(null)
+let visibilityObserver: MutationObserver | null = null
+
+// Watch for bubble menu visibility changes to manage focus trap
+function setupVisibilityObserver() {
+  if (!menuRef.value) return
+
+  const observer = new MutationObserver(() => {
+    if (!menuRef.value) return
+    const isVisible = menuRef.value.style.visibility !== 'hidden'
+
+    if (isVisible && !cleanupFocusTrap.value) {
+      cleanupFocusTrap.value = trapFocus(menuRef.value)
+    } else if (!isVisible && cleanupFocusTrap.value) {
+      cleanupFocusTrap.value()
+      cleanupFocusTrap.value = null
+    }
+  })
+
+  observer.observe(menuRef.value, { attributes: true, attributeFilter: ['style'] })
+  return observer
+}
 
 interface BubbleItemDef {
   icon: string
@@ -150,12 +175,21 @@ watch(
         },
       })
       editor.registerPlugin(plugin)
+      visibilityObserver = setupVisibilityObserver() ?? null
     }
   },
   { flush: 'post' },
 )
 
 onBeforeUnmount(() => {
+  if (visibilityObserver) {
+    visibilityObserver.disconnect()
+    visibilityObserver = null
+  }
+  if (cleanupFocusTrap.value) {
+    cleanupFocusTrap.value()
+    cleanupFocusTrap.value = null
+  }
   if (props.editor) {
     props.editor.unregisterPlugin(pluginKey)
   }
@@ -167,7 +201,8 @@ onBeforeUnmount(() => {
     ref="menuRef"
     class="rte-bubble-menu"
     data-testid="rte-bubble-menu"
-    role="toolbar"
+    role="dialog"
+    aria-modal="true"
     aria-label="Text formatting"
     style="visibility: hidden;"
   >
@@ -234,6 +269,7 @@ onBeforeUnmount(() => {
 
     <!-- Ask AI button -->
     <button
+      v-if="aiEnabled"
       class="rte-toolbar__button rte-bubble-ai-btn"
       aria-label="Ask AI"
       data-tooltip="Ask AI"

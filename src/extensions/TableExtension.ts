@@ -24,6 +24,23 @@ export const TableExtension = Extension.create<TableExtensionOptions>({
     }
   },
 
+  addKeyboardShortcuts() {
+    return {
+      'Tab': () => {
+        if (this.editor.isActive('table')) {
+          return this.editor.commands.goToNextCell()
+        }
+        return false
+      },
+      'Shift-Tab': () => {
+        if (this.editor.isActive('table')) {
+          return this.editor.commands.goToPreviousCell()
+        }
+        return false
+      },
+    }
+  },
+
   addExtensions() {
     return [
       Table.configure({
