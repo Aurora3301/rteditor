@@ -7,12 +7,12 @@ import '../../src/themes/default.css'
 
 const content = ref('<p>Hello from <strong>RTEditor</strong>! Start editing here...</p>')
 
-// Create local LLaMA handler (connects to Ollama at localhost:11434)
+// Create local LLaMA handler (connects to Ollama via Vite proxy to avoid CORS)
 const llamaHandler: AIHandler = createLlamaAIHandler({
-  endpoint: 'http://localhost:11434/api/generate',
+  endpoint: '/ollama/api/generate', // Proxied to http://localhost:11434/api/generate
   model: 'llama3.2', // Change to your installed model: llama3.1, mistral, codellama, etc.
-  systemPrompt: 'You are a helpful writing assistant. Provide clear, concise responses. Format output as plain text unless HTML is specifically requested.',
-  timeout: 120000, // 2 minutes for longer generations
+  systemPrompt: 'You are a helpful writing assistant for an education-focused rich text editor. Provide clear, concise responses. When asked to rewrite or edit text, return only the improved text without explanations. Format output as plain text unless HTML is specifically requested.',
+  timeout: 120000, // 2 minutes for longer generations on CPU
 })
 
 // Extend basePreset to include AI button in toolbar
