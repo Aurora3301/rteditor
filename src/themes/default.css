@@ -511,24 +511,6 @@
   cursor: nwse-resize;
 }
 
-.rte-resize-handle--sw {
-  bottom: -6px;
-  left: -6px;
-  cursor: nesw-resize;
-}
-
-.rte-resize-handle--ne {
-  top: -6px;
-  right: -6px;
-  cursor: nesw-resize;
-}
-
-.rte-resize-handle--nw {
-  top: -6px;
-  left: -6px;
-  cursor: nwse-resize;
-}
-
 .rte-resize-handle:hover {
   background: var(--rte-primary-hover, #1d4ed8);
   transform: scale(1.2);

@@ -16,7 +16,6 @@ const startY = ref(0)
 const startWidth = ref(0)
 const startHeight = ref(0)
 const naturalAspectRatio = ref(1)
-const activeHandle = ref('')
 
 const currentWidth = computed(() => props.node.attrs.width || null)
 const currentHeight = computed(() => props.node.attrs.height || null)
@@ -44,11 +43,10 @@ function onImageLoad() {
   }
 }
 
-function onResizeStart(e: MouseEvent, handle: string) {
+function onResizeStart(e: MouseEvent) {
   e.preventDefault()
   e.stopPropagation()
   isResizing.value = true
-  activeHandle.value = handle
   startX.value = e.clientX
   startY.value = e.clientY
 
@@ -65,9 +63,7 @@ function onResizeMove(e: MouseEvent) {
   if (!isResizing.value) return
 
   const dx = e.clientX - startX.value
-  // For left-side handles (sw, nw), dragging left increases width
-  const direction = (activeHandle.value === 'sw' || activeHandle.value === 'nw') ? -1 : 1
-  let newWidth = Math.max(50, startWidth.value + dx * direction)
+  let newWidth = Math.max(50, startWidth.value + dx)
 
   // Maintain aspect ratio
   const ratio = props.node.attrs.aspectRatio || naturalAspectRatio.value || 1
@@ -124,13 +120,12 @@ onBeforeUnmount(() => {
         draggable="false"
         @load="onImageLoad"
       />
-      <!-- Resize handles — only visible when selected -->
-      <template v-if="selected && editor?.isEditable">
-        <div class="rte-resize-handle rte-resize-handle--se" @mousedown.stop="onResizeStart($event, 'se')" />
-        <div class="rte-resize-handle rte-resize-handle--sw" @mousedown.stop="onResizeStart($event, 'sw')" />
-        <div class="rte-resize-handle rte-resize-handle--ne" @mousedown.stop="onResizeStart($event, 'ne')" />
-        <div class="rte-resize-handle rte-resize-handle--nw" @mousedown.stop="onResizeStart($event, 'nw')" />
-      </template>
+      <!-- Resize handle — bottom-right corner only -->
+      <div
+        v-if="selected && editor?.isEditable"
+        class="rte-resize-handle rte-resize-handle--se"
+        @mousedown.stop="onResizeStart($event)"
+      />
     </div>
   </NodeViewWrapper>
 </template>
